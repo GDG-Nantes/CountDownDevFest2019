@@ -17,11 +17,11 @@ export class AudioPlayer {
             request.responseType = 'arraybuffer';
 
             // Decode asynchronously
-            request.onload = function () {
-                context.decodeAudioData(request.response, function (buffer) {
+            request.onload = () => {
+                this.context.decodeAudioData(request.response, function (buffer) {
                     this.buffer = buffer;
                     resolve();
-                }, function (e) {
+                }, (e) => {
                     reject();
                     console.log('Error decoding file', e);
                 });
@@ -41,7 +41,7 @@ export class AudioPlayer {
      */
 
     loadAndPlaySong(songPath) {
-        loadSound(songPath)
+        return this._loadSound(songPath)
             .then(_ => {
                 const source = this.context.createBufferSource(); // creates a sound source
                 source.buffer = this.buffer; // tell the source which sound to play
