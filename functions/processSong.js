@@ -10,7 +10,8 @@ const Player = new MidiPlayer.Player(function(event) {
 });
 
 const objectSong = {
-    title : 'Audioslave-cochise_g_g+s',
+    //title : 'Audioslave-cochise_g_g+s',
+    title : 'Queen_-_killer_queen_g_g+s',
     tickArray : [],
     tickMap: {},
     notes: {},
@@ -18,11 +19,12 @@ const objectSong = {
 };
 
 // Load a MIDI file
-Player.loadFile('./assets/songs/Audioslave-cochise_g_g+s/notes.mid');
+//Player.loadFile('./assets/songs/Audioslave-cochise_g_g+s/notes.mid');
+Player.loadFile('./assets/songs/Queen_-_killer_queen_g_g+s/notes.mid');
 Player.play();
 
 Player.on('fileLoaded', function() {
-    console.log('File Loaded');
+    console.log('File Loaded', Player.tempo);
     //objectSong.title = 'Audioslave-cochise_g_g+s';
     //objectSong.tickArray = [];
     //objectSong.tickMap = {};
@@ -30,7 +32,8 @@ Player.on('fileLoaded', function() {
     // Do something when file is loaded
 });
 Player.on('playing', function(currentTick) {
-    //console.log('Playing', currentTick);
+
+    //console.log('Playing', currentTick, Player.tempo);
     // Do something while player is playing
     // (this is repeatedly triggered within the play loop)
 });
@@ -58,6 +61,8 @@ Player.on('midiEvent', function(event) {
     }else if (event.name === 'Note off'){
         let tickEvent = objectSong.notes[event.noteNumber].lastEvent;
         tickEvent.delta = event.tick - tickEvent.tick;
+    }else if (event.name === 'Time Signature'){
+        objectSong.bpm = Player.tempo;
     }
     // Do something when a MIDI event is fired.
     // (this is the same as passing a function to MidiPlayer.Player() when instantiating.
@@ -66,5 +71,6 @@ Player.on('endOfFile', function() {
     console.log('endOfFile');
     // Do something when end of the file has been reached.
     let data = JSON.stringify(objectSong, null, 2);
-    fs.writeFileSync('./Audioslave-cochise_g_g+s.json', data);
+    //fs.writeFileSync('./Audioslave-cochise_g_g+s.json', data);
+    fs.writeFileSync('./Queen_-_killer_queen_g_g+s.json', data);
 });

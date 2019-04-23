@@ -4,11 +4,12 @@ import {AudioPlayer} from './audio.js'
 
 
 document.body.addEventListener('click', _=>{
-    fetch('http://localhost:5000/Audioslave-cochise_g_g+s.json')
+    fetch('http://localhost:5000/Queen_-_killer_queen_g_g+s.json')
     .then(res=>res.json())
     .then(json=>{
         const audioPlayer = new AudioPlayer();
-        audioPlayer.loadAndPlaySong('./assets/songs/Audioslave-cochise_g_g+s/song.ogg')
+        //audioPlayer.loadAndPlaySong('./assets/songs/Audioslave-cochise_g_g+s/song.ogg')
+        audioPlayer.loadAndPlaySong('./assets/songs/Queen_-_killer_queen_g_g+s/song.ogg')
         .then(_=>{
 
             console.log(json);
@@ -25,7 +26,6 @@ document.body.addEventListener('click', _=>{
         while (!nextTick || tickIndex >= json.tickArray.length){
             const tempTick = json.tickArray[tickIndex];
             if (!tempTick.process){
-                tempTick.process = true;
                 nextTick = tempTick;
             }
             tickIndex++;
@@ -34,6 +34,7 @@ document.body.addEventListener('click', _=>{
             const delta = Date.now() - playTime;
             const tickTimeInMs = nextTick.tick * tickTime;
             if (delta - 4500 > tickTimeInMs && delta - 5000 < tickTimeInMs){
+                nextTick.process = true;
                 const newNode = document.createElement('div');
                 newNode.id = `tick${nextTick.tick}`;
                 newNode.classList.add('node' ,'green');
