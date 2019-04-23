@@ -13,7 +13,8 @@ const objectSong = {
     title : 'Audioslave-cochise_g_g+s',
     tickArray : [],
     tickMap: {},
-    notes: {}
+    notes: {},
+    bpm: 120
 };
 
 // Load a MIDI file

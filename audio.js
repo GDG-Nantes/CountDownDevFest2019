@@ -5,6 +5,7 @@ export class AudioPlayer {
         try {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             this.context = new AudioContext();
+            this.buffer = undefined;
         } catch (e) {
             console.log("No WebAPI dectect");
         }
@@ -18,7 +19,7 @@ export class AudioPlayer {
 
             // Decode asynchronously
             request.onload = () => {
-                this.context.decodeAudioData(request.response, function (buffer) {
+                this.context.decodeAudioData(request.response, (buffer) => {
                     this.buffer = buffer;
                     resolve();
                 }, (e) => {
@@ -59,6 +60,10 @@ export class AudioPlayer {
         if (this.currentSource && this.currentSource.stop) {
             this.currentSource.stop(0);
         }
+    }
+
+    time(){
+        return this.context.currentTime;
     }
 
 
