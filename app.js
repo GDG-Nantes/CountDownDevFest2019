@@ -21,7 +21,7 @@ document.body.addEventListener('click', _=>{
     });
 
     function raf(playTime, tickTime, json){
-        const nextTick = null;
+        let nextTick = null;
         let tickIndex = 0;
         while (!nextTick || tickIndex >= json.tickArray.length){
             const tempTick = json.tickArray[tickIndex];
@@ -40,7 +40,7 @@ document.body.addEventListener('click', _=>{
                 newNode.classList.add('node' ,'green');
                 document.querySelector('.notes').appendChild(newNode);
                 setTimeout(()=>{
-                    document.querySelector.removeChild(newNode);
+                    newNode.remove();
                 },5400);
 
             }
