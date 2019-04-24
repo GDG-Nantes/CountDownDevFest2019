@@ -6,6 +6,7 @@ export class AudioPlayer {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             this.context = new AudioContext();
             this.buffer = undefined;
+            this.bufferGuitar = undefined;
         } catch (e) {
             console.log("No WebAPI dectect");
         }
@@ -30,6 +31,25 @@ export class AudioPlayer {
             request.send();
         })
     }
+    _loadSoundGuitar(url, bufferToUse) {
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', url, true);
+            request.responseType = 'arraybuffer';
+
+            // Decode asynchronously
+            request.onload = () => {
+                this.context.decodeAudioData(request.response, (buffer) => {
+                    this.bufferGuitar = buffer;
+                    resolve();
+                }, (e) => {
+                    reject();
+                    console.log('Error decoding file', e);
+                });
+            }
+            request.send();
+        })
+    }
 
 
 
@@ -42,15 +62,20 @@ export class AudioPlayer {
      */
 
     loadAndPlaySong(songPath) {
-        return this._loadSound(songPath)
+        return this._loadSound(`${songPath}/song.ogg`)
+            .then(_=> this._loadSoundGuitar(`${songPath}/guitar.ogg`))
             .then(_ => {
                 const source = this.context.createBufferSource(); // creates a sound source
+                const sourceGuitar = this.context.createBufferSource(); // creates a sound source
                 source.buffer = this.buffer; // tell the source which sound to play
+                sourceGuitar.buffer = this.bufferGuitar; // tell the source which sound to play
                 source.connect(this.context.destination); // connect the source to the context's destination (the speakers)
+                sourceGuitar.connect(this.context.destination); // connect the source to the context's destination (the speakers)
                 source.start(0); // play the source now
-                return source;
+                sourceGuitar.start(0); // play the source now
+                return {source, sourceGuitar};
             })
-            .then((source) => {
+            .then(({source, sourceGuitar}) => {
                 this.currentSource = source;
             });
     }

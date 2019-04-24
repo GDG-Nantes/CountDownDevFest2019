@@ -2,14 +2,16 @@
 
 import {AudioPlayer} from './audio.js'
 
+const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+//const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones.json`;
+//const fileToPlay = `Queen_-_killer_queen_g_g+s.json`;
 
 document.body.addEventListener('click', _=>{
-    fetch('http://localhost:5000/Queen_-_killer_queen_g_g+s.json')
+    fetch(`http://localhost:5000/${fileToPlay}.json`)
     .then(res=>res.json())
     .then(json=>{
         const audioPlayer = new AudioPlayer();
-        //audioPlayer.loadAndPlaySong('./assets/songs/Audioslave-cochise_g_g+s/song.ogg')
-        audioPlayer.loadAndPlaySong('./assets/songs/Queen_-_killer_queen_g_g+s/song.ogg')
+        audioPlayer.loadAndPlaySong(`./assets/songs/${fileToPlay}`)
         .then(_=>{
 
             console.log(json);
@@ -35,13 +37,33 @@ document.body.addEventListener('click', _=>{
             const tickTimeInMs = nextTick.tick * tickTime;
             if (delta - 4500 > tickTimeInMs && delta - 5000 < tickTimeInMs){
                 nextTick.process = true;
-                const newNode = document.createElement('div');
-                newNode.id = `tick${nextTick.tick}`;
-                newNode.classList.add('node' ,'green');
-                document.querySelector('.notes').appendChild(newNode);
-                setTimeout(()=>{
-                    newNode.remove();
-                },5400);
+                nextTick.tracks.forEach(track=> {
+                    const newNode = document.createElement('div');
+                    newNode.id = `tick${nextTick.tick}`;
+                    let colorNote = 'green';
+                    switch(track){
+                        case '1':
+                        colorNote = 'green';
+                        break;
+                        case '2':
+                        colorNote = 'red';
+                        break;
+                        case '3':
+                        colorNote = 'yellow';
+                        break;
+                        case '4':
+                        colorNote = 'blue';
+                        break;
+                        case '5':
+                        colorNote = 'orange';
+                        break;
+                    }
+                    newNode.classList.add('note' , colorNote);
+                    document.querySelector('.notes').appendChild(newNode);
+                    setTimeout(()=>{
+                        newNode.remove();
+                    },5400);
+                });
 
             }
         }
