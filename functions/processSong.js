@@ -18,8 +18,31 @@ const objectSong = {
     tickArray : [],
     tickMap: {},
     notes: {},
-    bpm: 120
+    tempos: {},
+    timeSignatures: {},
+    bpm: 120,
+    ppq: 192
 };
+
+function getTempo(tick){
+    let tempoToUse = 120;
+    Object.keys(objectSong.tempos).forEach(tickKey => {
+        if (tick >= tickKey){
+            tempoToUse = objectSong.tempos[tickKey];
+        }
+    })
+    return tempoToUse;
+}
+
+function getTimeSignature(tick){
+    let signatureToUse = '4/4';
+    Object.keys(objectSong.timeSignatures).forEach(tickKey => {
+        if (tick >= tickKey){
+            signatureToUse = objectSong.timeSignatures[tickKey];
+        }
+    })
+    return signatureToUse;
+}
 
 function processMidiEvent(event){
     //console.log('midiEvent', event);
@@ -29,7 +52,9 @@ function processMidiEvent(event){
             tickEvent = {
                 tick : event.tick,
                 tracks: [],
-                notes: []
+                notes: [],
+                tempo: getTempo(event.tick),
+                timeSignature: getTimeSignature(event.tick)
             };
             objectSong.tickMap[event.tick] = tickEvent;
             objectSong.tickArray.push(tickEvent)
@@ -57,8 +82,10 @@ function processMidiEvent(event){
     }else if (event.name === 'Note off'){
         let tickEvent = objectSong.notes[`${event.noteNumber}`].lastEvent;
         tickEvent.delta = event.tick - tickEvent.tick;
+    }else if (event.name === 'Set Tempo'){
+        objectSong.tempos[event.tick] = event.data;
     }else if (event.name === 'Time Signature'){
-        objectSong.bpm = Player.tempo;
+        objectSong.timeSignatures[event.tick] = event.timeSignature;
     }
     // Do something when a MIDI event is fired.
     // (this is the same as passing a function to MidiPlayer.Player() when instantiating.
@@ -73,9 +100,16 @@ function finalizeSong(){
 
 Player.on('fileLoaded', function() {
     console.log('File Loaded', Player.tempo);
-    Player.events.forEach(trackEvents => {
-        trackEvents.forEach(event => processMidiEvent(event));
-    });
+    objectSong.bpm = Player.tempo;
+    objectSong.ppq = Player.division;
+    Player.events.forEach(trackEvent => {
+        const firstEventTrack = trackEvent[0];
+        if (firstEventTrack.name === "Sequence/Track Name"
+            && (firstEventTrack.string === "PART GUITAR"
+                || firstEventTrack.track === 1)){
+            trackEvent.forEach(event => processMidiEvent(event));
+        }
+    } )
 
     finalizeSong();
 });

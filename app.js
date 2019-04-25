@@ -16,7 +16,7 @@ document.body.addEventListener('click', _=>{
 
             console.log(json);
             const playTime = Date.now();
-            const tickTime = (60000 / (json.bpm*192));
+            const tickTime = (60000 / (json.bpm*json.ppq));
             raf(playTime, tickTime, json);
 
         })
@@ -35,7 +35,8 @@ document.body.addEventListener('click', _=>{
         if (nextTick){
             const delta = Date.now() - playTime;
             const tickTimeInMs = nextTick.tick * tickTime;
-            if (delta - 4500 > tickTimeInMs && delta - 5000 < tickTimeInMs){
+
+            if (delta - 5000 < tickTimeInMs){
                 nextTick.process = true;
                 nextTick.tracks.forEach(track=> {
                     const newNode = document.createElement('div');
