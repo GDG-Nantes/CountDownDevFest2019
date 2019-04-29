@@ -3,10 +3,11 @@
 const MidiPlayer = require('midi-player-js');
 const fs = require('fs');
 
-const fileToParse = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+//const fileToParse = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
 //const fileToParse = `Audioslave-cochise_g_g+s`;
 //const fileToParse = `3.5_Paint_It,_Black_–_The_Rolling_Stones`;
 //const fileToParse = `Queen_-_killer_queen_g_g+s`;
+const fileToParse = `The_Police_-_Message_in_a_Bottle`;
 
 // Initialize player and register event handler
 const Player = new MidiPlayer.Player(function(event) {
@@ -85,7 +86,11 @@ function processMidiEvent(event){
     }else if (event.name === 'Set Tempo'){
         objectSong.tempos[event.tick] = event.data;
     }else if (event.name === 'Time Signature'){
-        objectSong.timeSignatures[event.tick] = event.timeSignature;
+        // Nb Midi Clocks in clic = 3 byte of data
+        if (!objectSong.timeSignature){
+            objectSong.timeSignature = event.data[2];
+        }
+        objectSong.timeSignatures[event.tick] = event.data[2];
     }
     // Do something when a MIDI event is fired.
     // (this is the same as passing a function to MidiPlayer.Player() when instantiating.
