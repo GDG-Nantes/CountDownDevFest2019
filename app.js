@@ -146,3 +146,45 @@ document.body.addEventListener("click", _ => {
     return tickTiming;
   }
 });
+
+
+function canvas(){
+    const canvas = document.getElementById('canvas');
+    const context = canvas.getContext('2d');
+    console.log(canvas.width, canvas.height);
+    rafCanvas(canvas, context);
+}
+
+function rafCanvas(canvas, context){
+
+    const widthCircle = canvas.width / 5;
+    var x = 100,
+        y = 150,
+        // Radii of the white glow.
+        innerRadius = 5,
+        outerRadius = 15,
+        // Radius of the entire circle.
+        radiusWidth = widthCircle / 2,
+        radiusHeight = 10;
+
+    var gradient = context.createRadialGradient(x, y, innerRadius, x, y, outerRadius);
+    gradient.addColorStop(0, 'black');
+    gradient.addColorStop(1, 'green');
+
+    //context.arc(x, y, radius, 0, 2 * Math.PI);
+    context.ellipse(x, y, radiusWidth, radiusHeight, 0 * Math.PI/180, 0, 2 * Math.PI);
+
+    context.fillStyle = gradient;
+    context.fill();
+
+    context.beginPath();
+    context.ellipse(x, y, radiusWidth, radiusHeight, 0 * Math.PI/180, 0, 2 * Math.PI);
+    //context.arc(100, 100, radius, 0, 2 * Math.PI);
+    context.stroke();
+    window.requestAnimationFrame(()=> rafCanvas(canvas, context))
+}
+
+setTimeout(() => {
+    
+    canvas();
+}, 500);
