@@ -151,40 +151,50 @@ document.body.addEventListener("click", _ => {
 function canvas(){
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
+    console.log(canvas.getBoundingClientRect());
+    const clientRect = canvas.getBoundingClientRect();
+    canvas.width = clientRect.width;
+    canvas.height = clientRect.height;
     console.log(canvas.width, canvas.height);
     rafCanvas(canvas, context);
 }
 
 function rafCanvas(canvas, context){
 
+    const outterWidth = 2;
     const widthCircle = canvas.width / 5;
-    var x = 100,
-        y = 150,
+    const x = widthCircle + widthCircle / 2,
+        y = 350,
         // Radii of the white glow.
-        innerRadius = 5,
-        outerRadius = 15,
+        innerRadius = 0,
+        outerRadius = widthCircle-5,
         // Radius of the entire circle.
-        radiusWidth = widthCircle / 2,
-        radiusHeight = 10;
+        radiusWidth = (widthCircle / 2) - outterWidth,
+        radiusHeight = widthCircle / 2 / 6;
 
     var gradient = context.createRadialGradient(x, y, innerRadius, x, y, outerRadius);
-    gradient.addColorStop(0, 'black');
-    gradient.addColorStop(1, 'green');
+    gradient.addColorStop(0, 'grey');
+    gradient.addColorStop(1, 'white');
 
     //context.arc(x, y, radius, 0, 2 * Math.PI);
-    context.ellipse(x, y, radiusWidth, radiusHeight, 0 * Math.PI/180, 0, 2 * Math.PI);
-
-    context.fillStyle = gradient;
+    context.fillStyle="red";
+    context.beginPath();
+    context.ellipse(x, y, radiusWidth+outterWidth, radiusHeight+outterWidth, 0 * Math.PI/180, 0, 2 * Math.PI);
+    //context.arc(100, 100, radius, 0, 2 * Math.PI);
     context.fill();
 
     context.beginPath();
     context.ellipse(x, y, radiusWidth, radiusHeight, 0 * Math.PI/180, 0, 2 * Math.PI);
-    //context.arc(100, 100, radius, 0, 2 * Math.PI);
+
+    context.fillStyle = gradient;
+    context.fill();
     context.stroke();
+
+
     window.requestAnimationFrame(()=> rafCanvas(canvas, context))
 }
 
 setTimeout(() => {
-    
+
     canvas();
 }, 500);
