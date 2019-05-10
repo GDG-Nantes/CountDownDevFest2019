@@ -2,14 +2,26 @@
   "name": "countDownDevFest2019",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "engines": {
+    "node": "6.10.1",
+    "npm": "3.10.10"
+  },
+  "main": "webpack.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-webpack": "webpack --watch",
+    "start": "npm run start-webpack & npx serve",
+    "postinstall": "webpack"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "webpack": "^3.8.1",
     "@tonejs/midi": "^1.2.3",
     "midi-player-js": "^2.0.5"
   }
