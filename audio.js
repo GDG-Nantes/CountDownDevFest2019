@@ -61,7 +61,7 @@ export class AudioPlayer {
      ******************************
      */
 
-    loadAndPlaySong(songPath) {
+    loadAndPlaySong(songPath, mute) {
         return this._loadSound(`${songPath}/song.ogg`)
             .then(_=> this._loadSoundGuitar(`${songPath}/guitar.ogg`))
             .then(_ => {
@@ -71,8 +71,10 @@ export class AudioPlayer {
                 sourceGuitar.buffer = this.bufferGuitar; // tell the source which sound to play
                 source.connect(this.context.destination); // connect the source to the context's destination (the speakers)
                 sourceGuitar.connect(this.context.destination); // connect the source to the context's destination (the speakers)
-                source.start(0); // play the source now
-                sourceGuitar.start(0); // play the source now
+                if (!mute){
+                    source.start(0); // play the source now
+                    sourceGuitar.start(0); // play the source now
+                }
                 return {source, sourceGuitar};
             })
             .then(({source, sourceGuitar}) => {
