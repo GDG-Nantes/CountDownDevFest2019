@@ -8,8 +8,8 @@ import GameView from './game_view';
 
 // Mix code
 import { AudioPlayer } from "../audio.js";
-const DEBUG_MUTE = false; // Default = false; true if you don't want the sound
-const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+const DEBUG_MUTE = true; // Default = false; true if you don't want the sound
+//const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
 //const fileToPlay = `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`;
 //const fileToPlay = `acdc_-_thunder`;
 //const fileToPlay = `Rage_Against_the_Machine_-_Killing_in_the_Name`;
@@ -18,7 +18,7 @@ const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
 //const fileToPlay = `5.4_La_Grange_–_ZZ_Top`;
 //const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`;
 //const fileToPlay = `Queen_-_killer_queen_g_g+s`;
-//const fileToPlay = `The_Police_-_Message_in_a_Bottle`;
+const fileToPlay = `The_Police_-_Message_in_a_Bottle`;
 
 class Game {
   constructor() {
@@ -88,9 +88,6 @@ class Game {
   addMusic() {
     const audioPlayer = new AudioPlayer();
     return audioPlayer.loadAndPlaySong(`./assets/songs/${fileToPlay}`, DEBUG_MUTE);
-    /*this.music = new Audio(this.musicDelay);
-    this.music.startMusic();
-    setTimeout(this.music.fadeOut.bind(this.music), 213000);*/
   }
 
 
@@ -104,10 +101,7 @@ class Game {
             tickArray: [],
             tickMap: {},
             notes: {},
-            tempos: {},
-            timeSignatures: {},
-            bpm: 120,
-            ppq: 192
+            bpm: midi.header.tempos[0].bpm,
           };
 
 
@@ -147,9 +141,7 @@ class Game {
                   tick: note.time * 1000,
                   duration: note.duration * 1000,
                   tracks: [],
-                  notes: [],
-                  tempo: 120, //this.getTempo(event.tick),
-                  timeSignature: 24 //this.getTimeSignature(event.tick)
+                  notes: []
                 };
                 objectSong.tickMap[note.ticks] = tickEvent;
                 objectSong.tickArray.push(tickEvent);
@@ -159,17 +151,6 @@ class Game {
                 && noteCorrespondance.difficulty === 'EASY_DIFFICULTY'){
                   tickEvent.tracks.push(`${noteCorrespondance.note + 1}`);
               }
-              /*if (note.midi >= 60 && note.midi < 70) {
-                tickEvent.tracks.push(`1`);
-              } else if (note.midi >= 70 && note.midi < 80) {
-                tickEvent.tracks.push(`2`);
-              } else if (note.midi >= 80 && note.midi < 90) {
-                tickEvent.tracks.push(`3`);
-              } else if (note.midi >= 90 && note.midi < 100) {
-                tickEvent.tracks.push(`4`);
-              } else if (note.midi >= 100 && note.midi < 110) {
-                tickEvent.tracks.push(`5`);
-              }*/
               mapNote[note.midi] = mapNote[note.midi] + 1;
             });
           }

@@ -45285,8 +45285,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Mix code
 
-const DEBUG_MUTE = false; // Default = false; true if you don't want the sound
-const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+const DEBUG_MUTE = true; // Default = false; true if you don't want the sound
+//const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
 //const fileToPlay = `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`;
 //const fileToPlay = `acdc_-_thunder`;
 //const fileToPlay = `Rage_Against_the_Machine_-_Killing_in_the_Name`;
@@ -45295,7 +45295,7 @@ const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
 //const fileToPlay = `5.4_La_Grange_–_ZZ_Top`;
 //const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`;
 //const fileToPlay = `Queen_-_killer_queen_g_g+s`;
-//const fileToPlay = `The_Police_-_Message_in_a_Bottle`;
+const fileToPlay = `The_Police_-_Message_in_a_Bottle`;
 
 class Game {
   constructor() {
@@ -45365,9 +45365,6 @@ class Game {
   addMusic() {
     const audioPlayer = new __WEBPACK_IMPORTED_MODULE_6__audio_js__["a" /* AudioPlayer */]();
     return audioPlayer.loadAndPlaySong(`./assets/songs/${fileToPlay}`, DEBUG_MUTE);
-    /*this.music = new Audio(this.musicDelay);
-    this.music.startMusic();
-    setTimeout(this.music.fadeOut.bind(this.music), 213000);*/
   }
 
 
@@ -45381,10 +45378,7 @@ class Game {
             tickArray: [],
             tickMap: {},
             notes: {},
-            tempos: {},
-            timeSignatures: {},
-            bpm: 120,
-            ppq: 192
+            bpm: midi.header.tempos[0].bpm,
           };
 
 
@@ -45424,9 +45418,7 @@ class Game {
                   tick: note.time * 1000,
                   duration: note.duration * 1000,
                   tracks: [],
-                  notes: [],
-                  tempo: 120, //this.getTempo(event.tick),
-                  timeSignature: 24 //this.getTimeSignature(event.tick)
+                  notes: []
                 };
                 objectSong.tickMap[note.ticks] = tickEvent;
                 objectSong.tickArray.push(tickEvent);
@@ -45436,17 +45428,6 @@ class Game {
                 && noteCorrespondance.difficulty === 'EASY_DIFFICULTY'){
                   tickEvent.tracks.push(`${noteCorrespondance.note + 1}`);
               }
-              /*if (note.midi >= 60 && note.midi < 70) {
-                tickEvent.tracks.push(`1`);
-              } else if (note.midi >= 70 && note.midi < 80) {
-                tickEvent.tracks.push(`2`);
-              } else if (note.midi >= 80 && note.midi < 90) {
-                tickEvent.tracks.push(`3`);
-              } else if (note.midi >= 90 && note.midi < 100) {
-                tickEvent.tracks.push(`4`);
-              } else if (note.midi >= 100 && note.midi < 110) {
-                tickEvent.tracks.push(`5`);
-              }*/
               mapNote[note.midi] = mapNote[note.midi] + 1;
             });
           }
@@ -46686,6 +46667,8 @@ class GameView {
     this.yStartPoint = 50;
     this.yEndPoint = -75;
     this.xPos = [-50, -25, 0, 25, 50];
+    // Delay of note before the time it is show and it is played
+    this.tempoDelay = 5000;
 
     this.xRotation = -Math.atan(
       (this.zEndPoint - this.zStartPoint) / (this.yStartPoint - this.yEndPoint)
@@ -46834,6 +46817,24 @@ class GameView {
     this.startTime = currentTime;
     this.objectSong = objectSong;
 
+
+    this.tempoDelay = this.calculateTempoDelay(objectSong.bpm);
+    console.log(`Delay of notes : ${this.tempoDelay}`)
+
+  }
+
+  calculateTempoDelay(maxBpmOfSong){
+    const speedDelaySong = 3000;
+    const lowDelaySong = 8000;
+
+    const speedBpm = 160;
+    const lowBpm = 110;
+
+    const deltaBpm = speedBpm - lowBpm;
+    const deltaDelaySong = lowDelaySong - speedDelaySong;
+
+    const percentBpmOfSong = (speedBpm - maxBpmOfSong) / deltaBpm;
+    return speedDelaySong + deltaDelaySong * percentBpmOfSong;
   }
 
   
@@ -46861,15 +46862,13 @@ class GameView {
       const tickTimeInMs = nextTick.tick;
 
       // Special case we take all one of the first 10 secconds
-      if (tickTimeInMs < 10000) {
-        //console.log('<5000', this.startTime, delta, tickTimeInMs);
+      if (tickTimeInMs < this.tempoDelay) {
         nextTick.process = true;
         this.addNote(nextTick, timeEllapseSinceStartOfSong);
         
         // We only take note that will be played in the next 10 seconds
-      } else if (timeEllapseSinceStartOfSong + 10000 > tickTimeInMs) {
+      } else if (timeEllapseSinceStartOfSong + this.tempoDelay > tickTimeInMs) {
         nextTick.process = true;
-        //console.log('Delta 5000', this.startTime, delta, tickTimeInMs);
         this.addNote(nextTick, timeEllapseSinceStartOfSong);
       }
     }

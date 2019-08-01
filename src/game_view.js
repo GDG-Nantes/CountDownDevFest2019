@@ -17,6 +17,8 @@ class GameView {
     this.yStartPoint = 50;
     this.yEndPoint = -75;
     this.xPos = [-50, -25, 0, 25, 50];
+    // Delay of note before the time it is show and it is played
+    this.tempoDelay = 5000;
 
     this.xRotation = -Math.atan(
       (this.zEndPoint - this.zStartPoint) / (this.yStartPoint - this.yEndPoint)
@@ -165,6 +167,24 @@ class GameView {
     this.startTime = currentTime;
     this.objectSong = objectSong;
 
+
+    this.tempoDelay = this.calculateTempoDelay(objectSong.bpm);
+    console.log(`Delay of notes : ${this.tempoDelay}`)
+
+  }
+
+  calculateTempoDelay(maxBpmOfSong){
+    const speedDelaySong = 3000;
+    const lowDelaySong = 8000;
+
+    const speedBpm = 160;
+    const lowBpm = 110;
+
+    const deltaBpm = speedBpm - lowBpm;
+    const deltaDelaySong = lowDelaySong - speedDelaySong;
+
+    const percentBpmOfSong = (speedBpm - maxBpmOfSong) / deltaBpm;
+    return speedDelaySong + deltaDelaySong * percentBpmOfSong;
   }
 
   
@@ -192,15 +212,13 @@ class GameView {
       const tickTimeInMs = nextTick.tick;
 
       // Special case we take all one of the first 10 secconds
-      if (tickTimeInMs < 10000) {
-        //console.log('<5000', this.startTime, delta, tickTimeInMs);
+      if (tickTimeInMs < this.tempoDelay) {
         nextTick.process = true;
         this.addNote(nextTick, timeEllapseSinceStartOfSong);
         
         // We only take note that will be played in the next 10 seconds
-      } else if (timeEllapseSinceStartOfSong + 10000 > tickTimeInMs) {
+      } else if (timeEllapseSinceStartOfSong + this.tempoDelay > tickTimeInMs) {
         nextTick.process = true;
-        //console.log('Delta 5000', this.startTime, delta, tickTimeInMs);
         this.addNote(nextTick, timeEllapseSinceStartOfSong);
       }
     }
