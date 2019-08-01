@@ -3,15 +3,15 @@ import PointerLockControls from '../vendor/PointerLockControls.js';
 import OrbitControls from '../vendor/OrbitControls.js';
 
 import Key from './key';
-import Audio from './audio';
 import GameNotes from './game_notes';
 import GameView from './game_view';
-import Instructions from './instructions';
 
 // Mix code
 import { AudioPlayer } from "../audio.js";
 const DEBUG_MUTE = false; // Default = false; true if you don't want the sound
 const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+//const fileToPlay = `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`;
+//const fileToPlay = `acdc_-_thunder`;
 //const fileToPlay = `Rage_Against_the_Machine_-_Killing_in_the_Name`;
 //const fileToPlay = `2.5_Bulls_on_Parade_–_Rage_Against_the_Machine`;
 //const fileToPlay = `4.1_Paranoid_–_Black_Sabbath`;
@@ -25,7 +25,6 @@ class Game {
     this.noteInterval = 237.8;
     this.musicDelay = 1980;
     this.key = new Key();
-    this.instructions = new Instructions();
     this.started = false;
 
     this.gameStartEl = document.getElementsByClassName('start')[0];

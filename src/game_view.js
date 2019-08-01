@@ -1,6 +1,4 @@
 import * as THREE from '../vendor/three';
-import { songNotes, beatsPerMeasure } from './song';
-import ViewControls from './view_controls';
 import Light from './light';
 import GameNotes from './game_notes';
 
@@ -25,8 +23,6 @@ class GameView {
     );
 
     this.spheres = [];
-    this.cylinders = [];
-    this.beatLines = [];
 
     this.t = 0;
     this.measures = [0];
@@ -46,7 +42,6 @@ class GameView {
     this.backgroundSetup();
     this.addFretBoard();
     this.setNoteAttributes();
-    this.controls = new ViewControls(this.camera, this.renderer);
     this.gameLoop();
   }
 
@@ -170,178 +165,9 @@ class GameView {
     this.startTime = currentTime;
     this.objectSong = objectSong;
 
-    /*this.gameNotes = new GameNotes(
-      noteInterval, this.musicDelay, this.key
-    );*/
-
-
-    //this.generateNotesNew(objectSong);
   }
 
-  generateNotes(noteInterval){
-    let noteMaterial;
-    songNotes.forEach((songNote, idx) => {
-
-      noteMaterial = this.note.materials[songNote.pos - 1];
-
-      this.spheres[idx] = new THREE.Mesh(this.note.geometry, noteMaterial);
-
-      let time = noteInterval * (
-        ((songNote.m - 1) * beatsPerMeasure) + songNote.t
-      );
-      let lag = 0;
-
-      if (songNote.m > 94) {
-        lag = 12.5 * songNote.m;
-        time += lag;
-      } else if (songNote.m > 79) {
-        lag = 10 * songNote.m;
-        time += lag;
-      } else if (songNote.m > 71) {
-        lag = 7.5 * songNote.m;
-        time += lag;
-      }
-      else if (songNote.m > 48) {
-        lag = 5 * songNote.m;
-        time += lag;
-      }
-
-      // CREATE HOLDS
-      if (songNote.hold) {
-        let cylinderMaterial = this.note.materials[songNote.pos - 1];
-        let cylinderGeometry = new THREE.CylinderGeometry(
-          3.5, 3.5, (songNote.hold * this.note.vel * 30)
-        );
-        this.cylinders[idx] = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-        this.cylinders[idx].rotateX(this.xRotation);
-      }
-
-      this.addMovingBeatLine(songNote.m, noteInterval, lag);
-
-      // POSITION & ADD TO SCENE NOTES & HOLDS & BeatLines
-      setTimeout( () => {
-        if (this.cylinders[idx]) {
-          let hold = songNote.hold * 3;
-          this.cylinders[idx].hold = hold;
-          this.cylinders[idx].position.set(
-            this.xPos[songNote.pos - 1],
-            this.yStartPoint - hold * this.note.yVel,
-            this.zStartPoint - hold * this.note.zVel
-          );
-          this.scene.add(this.cylinders[idx]);
-        }
-        this.scene.add(this.spheres[idx]);
-        this.spheres[idx].position.set(
-          this.xPos[songNote.pos - 1],
-          (this.yStartPoint),
-          (this.zStartPoint));
-        }, time
-      );
-      this.gameNotes.setNoteCheck(songNote, time);
-    });
-  }
-
-  generateNotesNew(objectSong){
-    let noteMaterial;
-    let index = 0;
-    objectSong.tickArray.forEach(tickEvent =>{
-      tickEvent.tracks.forEach(track => {
-        index++;
-        let idx = index + 0;
-        noteMaterial = this.note.materials[+track - 1];
-
-        this.spheres[idx] = new THREE.Mesh(this.note.geometry, noteMaterial);
-
-        let time = tickEvent.tick;
-        let lag = 0;
-
-        /*if (songNote.m > 94) {
-          lag = 12.5 * songNote.m;
-          time += lag;
-        } else if (songNote.m > 79) {
-          lag = 10 * songNote.m;
-          time += lag;
-        } else if (songNote.m > 71) {
-          lag = 7.5 * songNote.m;
-          time += lag;
-        }
-        else if (songNote.m > 48) {
-          lag = 5 * songNote.m;
-          time += lag;
-        }*/
-
-      // CREATE HOLDS
-      /*if (songNote.hold) {
-        let cylinderMaterial = this.note.materials[songNote.pos - 1];
-        let cylinderGeometry = new THREE.CylinderGeometry(
-          3.5, 3.5, (songNote.hold * this.note.vel * 30)
-        );
-        this.cylinders[idx] = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-        this.cylinders[idx].rotateX(this.xRotation);
-      }*/
-
-      //this.addMovingBeatLine(songNote.m, noteInterval, lag);
-
-      // POSITION & ADD TO SCENE NOTES & HOLDS & BeatLines
-      setTimeout( () => {
-        /*if (this.cylinders[idx]) {
-          let hold = songNote.hold * 3;
-          this.cylinders[idx].hold = hold;
-          this.cylinders[idx].position.set(
-            this.xPos[songNote.pos - 1],
-            this.yStartPoint - hold * this.note.yVel,
-            this.zStartPoint - hold * this.note.zVel
-          );
-          this.scene.add(this.cylinders[idx]);
-        }*/
-        this.scene.add(this.spheres[idx]);
-        this.spheres[idx].position.set(
-          this.xPos[+track - 1],
-          (this.yStartPoint),
-          (this.zStartPoint));
-        }, time
-      );
-      //this.gameNotes.setNoteCheckNew(+track, time);
-
-
-      });
-    })
-  }
-
-  addMovingBeatLine(measure, noteInterval, lag) {
-    if (this.measures[this.measures.length - 1] < measure) {
-      this.measures.push(measure);
-      let onBeatLineMaterial =
-        new THREE.MeshBasicMaterial( { color: 0x999999});
-      let offBeatLineMaterial =
-        new THREE.MeshBasicMaterial( { color: 0x3b3b3b});
-      let beatLineGeometry = new THREE.CylinderGeometry(
-        .25, .25, (this.xPos[4] - this.xPos[0] + 50)
-      );
-      for (let t = 1; t < 9; t++ ) {
-        let time = lag + noteInterval * (
-          ((measure - 1) * beatsPerMeasure) + t
-        );
-        let idx = measure * beatsPerMeasure + t;
-        if (t % 2 === 0) {
-          this.beatLines[idx] =
-            new THREE.Mesh(beatLineGeometry, offBeatLineMaterial);
-        } else {
-          this.beatLines[idx] =
-            new THREE.Mesh(beatLineGeometry, onBeatLineMaterial);
-        }
-
-        setTimeout( () => {
-          this.scene.add(this.beatLines[idx]);
-          this.beatLines[idx].position.set(
-            0, this.yStartPoint, this.zStartPoint
-          );
-          this.beatLines[idx].rotateZ(Math.PI / 2);
-        }, time);
-      }
-    }
-  }
-
+  
   processTicks(){
     if (!this.objectSong) return;
 
@@ -370,46 +196,17 @@ class GameView {
         //console.log('<5000', this.startTime, delta, tickTimeInMs);
         nextTick.process = true;
         this.addNote(nextTick, timeEllapseSinceStartOfSong);
-        if (nextTick.duration ){
-          //this.addCylinder(nextTick, delta);
-        }
+        
         // We only take note that will be played in the next 10 seconds
       } else if (timeEllapseSinceStartOfSong + 10000 > tickTimeInMs) {
         nextTick.process = true;
         //console.log('Delta 5000', this.startTime, delta, tickTimeInMs);
         this.addNote(nextTick, timeEllapseSinceStartOfSong);
-        if (nextTick.duration ){
-          //this.addCylinder(nextTick, delta);
-        }
       }
     }
   }
 
-  addCylinder(tick, delta){
-    tick.tracks.forEach(track => {
-      const cylinderMaterial = this.note.materials[+track - 1];
-      if (tick.duration ){
-        const lengthCylinder = (tick.duration / 10);
-        let cylinderGeometry = new THREE.CylinderGeometry(
-          //3.5, 3.5, (tick.hold * this.note.vel * 30)
-          3.5, 3.5, lengthCylinder
-        );
-        const cylinderMesh = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-        cylinderMesh.rotateX(this.xRotation);
-        cylinderMesh.moveTime = tick.tick - delta;
-        cylinderMesh.ellapseTime = Date.now();
-        cylinderMesh.position.set(
-          this.xPos[+track - 1],
-          (this.yStartPoint - lengthCylinder),
-          (this.zStartPoint));
-        this.cylinders.push(cylinderMesh);
-        this.scene.add(cylinderMesh);
-      }
-
-      }
-    );
-  }
-
+  
   addNote(tickNote, timeEllapseSinceStartOfSong){
 
     // A tick note contains tracks of notes
@@ -452,10 +249,6 @@ class GameView {
       if (!sphere.noteFinished){
         const percent = timeEllapseForNote / sphere.moveTime;
         
-        
-        //this.note.yVel = this.note.vel * (this.yEndPoint - this.yStartPoint) / 100;
-        //this.note.zVel = this.note.vel * (this.zEndPoint - this.zStartPoint) / 100;
-        
         sphere.position.y = -Math.abs(this.yEndPoint - this.yStartPoint) * percent + this.yStartPoint;
         sphere.position.z = Math.abs(this.zStartPoint - this.zEndPoint) * percent + this.zStartPoint;
         if (sphere.position.z > this.zEndPoint) {
@@ -470,29 +263,7 @@ class GameView {
       this.processNotePressed(sphere, timeEllapseForNote);
     });
 
-    this.cylinders.forEach(cylinder => {
-      if (cylinder.noteFinished) return;
-
-      const deltaMove = (Date.now() - cylinder.ellapseTime);
-      if (deltaMove > cylinder.moveTime || cylinder.moveTime < 0) {
-        cylinder.noteFinished = true;
-        this.scene.remove(cylinder);
-        return;
-      }
-
-      const percent = deltaMove / cylinder.moveTime;
-
-
-      //this.note.yVel = this.note.vel * (this.yEndPoint - this.yStartPoint) / 100;
-      //this.note.zVel = this.note.vel * (this.zEndPoint - this.zStartPoint) / 100;
-
-      cylinder.position.y = -Math.abs(this.yEndPoint - this.yStartPoint) * percent + this.yStartPoint;
-      cylinder.position.z = Math.abs(this.zStartPoint - this.zEndPoint) * percent + this.zStartPoint;
-      if (cylinder.position.z > this.zEndPoint) {
-        cylinder.noteFinished = true;
-        this.scene.remove(cylinder);
-      }
-    });
+   
   }
 
 
@@ -532,27 +303,7 @@ class GameView {
         this.scene.remove(sphere);
       }
     });
-    this.cylinders.forEach(cylinder => {
-      if (cylinder) {
-        cylinder.position.y += this.note.yVel;
-        cylinder.position.z += this.note.zVel;
-        if (cylinder.position.z > (this.zEndPoint + cylinder.hold * this.note.zVel)) {
-          this.scene.remove(cylinder);
-        }
-      }
-    });
-    this.beatLines.forEach(beatLine => {
-      if (beatLine) {
-        beatLine.position.y += this.note.yVel;
-        beatLine.position.z += this.note.zVel;
-        if (beatLine.position.z > this.zEndPoint) {
-          this.scene.remove(beatLine);
-        }
-      }
-    });
-    // this.t += .01;
-    // this.light.movingLights[0].position.x = 5 * Math.cos(this.t) + 0;
-    // this.light.movingLights[0].position.y = 5 * Math.sin(this.t) + 0;
+    
   }
 
   sceneRender() {
@@ -562,7 +313,6 @@ class GameView {
   gameLoop() {
     requestAnimationFrame(this.gameLoop.bind(this));
 
-    //this.sceneUpdate();
     this.sceneUpdateNew();
     this.sceneRender();
   }

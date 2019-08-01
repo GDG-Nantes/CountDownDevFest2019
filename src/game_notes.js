@@ -1,4 +1,3 @@
-import { songNotes, beatsPerMeasure } from './song';
 
 class GameNotes {
   constructor(noteInterval, musicDelay, key) {
@@ -10,8 +9,6 @@ class GameNotes {
     this.maxStreakEl = document.getElementsByClassName('max-streak')[0];
     this.streakEl = document.getElementsByClassName('streak')[0];
     this.multiplierEl = document.getElementsByClassName('multiplier')[0];
-    this.gameProgressEl = document.getElementsByClassName('game-progress')[0];
-    this.rockInputEl = document.getElementsByClassName('rock-input')[0];
 
     this.score = 0;
     this.maxStreak = 0;
@@ -20,20 +17,60 @@ class GameNotes {
     this.hits = 0;
     this.misses = 0;
     this.totalNotes = 0;
-    this.rockInput = 0;
   }
 
   setNoteCheck(songNote, time) {
     let timeDelay = 260 + this.musicDelay + time;
 
     setTimeout(
-      () => this.checkNote(songNote),
+      () => this.checkNote(songNote.pos),
       timeDelay
     );
   }
 
-  checkNote(songNote) {
-    if (this.key.isDown(this.key.pos[songNote.pos])) {
+  setNoteCheckNew(pos, time) {
+    let timeDelay = 260 + this.musicDelay + time;
+
+    setTimeout(
+      () => this.checkNote(pos),
+      timeDelay
+    );
+  }
+
+  incrementHits(){
+    this.hits++;
+    if (this.hits > this.maxStreak){
+      this.maxStreak = this.hits;
+    }
+  }
+
+  resetHits(){
+    this.hits = 0;
+    this.refreshScore();
+  }
+
+  incrementScore(){
+    this.multiplier = 1;
+    if (this.hits === 30) {
+      this.multiplier = 4;
+    } else if (this.hits === 20) {
+      this.multiplier = 3;
+    } else if (this.hits === 10) {
+      this.multiplier = 2;
+    }
+    this.score += 100 * Number(this.multiplier);
+    this.refreshScore();
+  }
+
+  refreshScore(){
+    this.scoreEl.innerHTML = `Score: ${this.score}`;
+    this.maxStreakEl.innerHTML = `Max Streak: ${this.maxStreak}`;
+    this.streakEl.innerHTML = `Streak: ${this.hits}`;
+    this.multiplierEl.innerHTML = `Multiplier: ${this.multiplier}X`;
+  }
+
+  checkNote(pos) {
+    if (this.key.isDown(this.key.pos[pos])) {
       if (this.streak === 30) {
         this.multiplier = 4;
       } else if (this.streak === 20) {
@@ -44,27 +81,10 @@ class GameNotes {
       this.score += 100 * Number(this.multiplier);
       this.hits += 1;
       this.streak += 1;
-      if (this.rockInput < 20) {
-        this.rockInput += 1;
-      }
     } else {
       this.streak = 0;
       this.misses += 1;
       this.multiplier = 1;
-      if (this.rockInput > -20 ) {
-        this.rockInput -= 1;
-      }
-      if (this.rockInput < -10) {
-        this.gameProgressEl.className = 'game-progress red';
-        setTimeout(() => {this.gameProgressEl.className = 'game-progress';}, 75);
-      }
-    }
-    if (this.rockInput > 19) {
-      this.gameProgressEl.className = 'game-progress green';
-    } else if (this.rockInput > 10) {
-      this.gameProgressEl.className = 'game-progress yellow';
-    } else if (this.rockInput > -10 && this.rockInput < 10) {
-      this.gameProgressEl.className = 'game-progress';
     }
 
     if (this.streak > this.maxStreak) {
@@ -77,7 +97,6 @@ class GameNotes {
     this.maxStreakEl.innerHTML = `Max Streak: ${this.maxStreak}`;
     this.streakEl.innerHTML = `Streak: ${this.streak}`;
     this.multiplierEl.innerHTML = `Multiplier: ${this.multiplier}X`;
-    this.rockInputEl.value = this.rockInput;//('value', `${this.rockInput}`);
   }
 }
 

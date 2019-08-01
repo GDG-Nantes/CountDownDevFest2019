@@ -1,5 +1,74 @@
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
 (function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+	 true ? factory(exports) :
 	typeof define === 'function' && define.amd ? define(['exports'], factory) :
 	(factory((global.THREE = global.THREE || {})));
 }(this, (function (exports) { 'use strict';
@@ -45061,3 +45130,2009 @@
 	Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+class GameNotes {
+  constructor(noteInterval, musicDelay, key) {
+    this.noteInterval = noteInterval;
+    this.musicDelay = musicDelay;
+    this.key = key;
+
+    this.scoreEl = document.getElementsByClassName('score')[0];
+    this.maxStreakEl = document.getElementsByClassName('max-streak')[0];
+    this.streakEl = document.getElementsByClassName('streak')[0];
+    this.multiplierEl = document.getElementsByClassName('multiplier')[0];
+
+    this.score = 0;
+    this.maxStreak = 0;
+    this.streak = 0;
+    this.multiplier = 1;
+    this.hits = 0;
+    this.misses = 0;
+    this.totalNotes = 0;
+  }
+
+  setNoteCheck(songNote, time) {
+    let timeDelay = 260 + this.musicDelay + time;
+
+    setTimeout(
+      () => this.checkNote(songNote.pos),
+      timeDelay
+    );
+  }
+
+  setNoteCheckNew(pos, time) {
+    let timeDelay = 260 + this.musicDelay + time;
+
+    setTimeout(
+      () => this.checkNote(pos),
+      timeDelay
+    );
+  }
+
+  incrementHits(){
+    this.hits++;
+    if (this.hits > this.maxStreak){
+      this.maxStreak = this.hits;
+    }
+  }
+
+  resetHits(){
+    this.hits = 0;
+    this.refreshScore();
+  }
+
+  incrementScore(){
+    this.multiplier = 1;
+    if (this.hits === 30) {
+      this.multiplier = 4;
+    } else if (this.hits === 20) {
+      this.multiplier = 3;
+    } else if (this.hits === 10) {
+      this.multiplier = 2;
+    }
+    this.score += 100 * Number(this.multiplier);
+    this.refreshScore();
+  }
+
+  refreshScore(){
+    this.scoreEl.innerHTML = `Score: ${this.score}`;
+    this.maxStreakEl.innerHTML = `Max Streak: ${this.maxStreak}`;
+    this.streakEl.innerHTML = `Streak: ${this.hits}`;
+    this.multiplierEl.innerHTML = `Multiplier: ${this.multiplier}X`;
+  }
+
+  checkNote(pos) {
+    if (this.key.isDown(this.key.pos[pos])) {
+      if (this.streak === 30) {
+        this.multiplier = 4;
+      } else if (this.streak === 20) {
+        this.multiplier = 3;
+      } else if (this.streak === 10) {
+        this.multiplier = 2;
+      }
+      this.score += 100 * Number(this.multiplier);
+      this.hits += 1;
+      this.streak += 1;
+    } else {
+      this.streak = 0;
+      this.misses += 1;
+      this.multiplier = 1;
+    }
+
+    if (this.streak > this.maxStreak) {
+      this.maxStreak = this.streak;
+    }
+
+    this.totalNotes += 1;
+
+    this.scoreEl.innerHTML = `Score: ${this.score}`;
+    this.maxStreakEl.innerHTML = `Max Streak: ${this.maxStreak}`;
+    this.streakEl.innerHTML = `Streak: ${this.streak}`;
+    this.multiplierEl.innerHTML = `Multiplier: ${this.multiplier}X`;
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (GameNotes);
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__game__ = __webpack_require__(3);
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  let game = new __WEBPACK_IMPORTED_MODULE_0__game__["a" /* default */]();
+
+  const instructionElt = document.querySelector('.instructions');
+  const closeInstructionElt = document.querySelector('.close-instructions');
+
+  closeInstructionElt.addEventListener('click', _=>instructionElt.style.display = 'none');
+  
+});
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vendor_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vendor_three___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__vendor_three__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__vendor_PointerLockControls_js__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__vendor_OrbitControls_js__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__key__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__game_notes__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__game_view__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__audio_js__ = __webpack_require__(9);
+
+
+
+
+
+
+
+
+// Mix code
+
+const DEBUG_MUTE = false; // Default = false; true if you don't want the sound
+const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+//const fileToPlay = `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`;
+//const fileToPlay = `acdc_-_thunder`;
+//const fileToPlay = `Rage_Against_the_Machine_-_Killing_in_the_Name`;
+//const fileToPlay = `2.5_Bulls_on_Parade_–_Rage_Against_the_Machine`;
+//const fileToPlay = `4.1_Paranoid_–_Black_Sabbath`;
+//const fileToPlay = `5.4_La_Grange_–_ZZ_Top`;
+//const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`;
+//const fileToPlay = `Queen_-_killer_queen_g_g+s`;
+//const fileToPlay = `The_Police_-_Message_in_a_Bottle`;
+
+class Game {
+  constructor() {
+    this.noteInterval = 237.8;
+    this.musicDelay = 1980;
+    this.key = new __WEBPACK_IMPORTED_MODULE_3__key__["a" /* default */]();
+    this.started = false;
+
+    this.gameStartEl = document.getElementsByClassName('start')[0];
+    this.gameStartListener =
+      window.addEventListener("keypress", this.hitAToStart.bind(this));
+
+    this.createGameView();
+  }
+
+  startGame() {
+    this.loadMidi()
+    .then(objectSong => {
+      this.addMusic()
+      .then(_=>{
+        const currentTime = Date.now();
+        this.gameView.addMovingNotes(this.noteInterval, objectSong, currentTime);
+        this.gameStartEl.className = "start hidden";
+        this.started = true;
+      });
+    })
+  }
+
+  hitAToStart(e) {
+    if (!this.started) {
+      if (e.keyCode === 97 || e.keyCode === 65) {
+        this.startGame();
+      }
+    }
+  }
+
+  createGameView() {
+    // SCENE SIZE
+    let width = window.innerWidth,
+      height = window.innerHeight;
+
+    // CAMERA ATTRIBUTE
+    let viewAngle = 75,
+      aspect = width / height,
+      near = 0.1,
+      far = 10000;
+
+    let scene = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Scene"]();
+    let camera = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["PerspectiveCamera"](
+      viewAngle,
+      aspect,
+      near,
+      far);
+
+    camera.position.z = 150;
+
+    let renderer = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["WebGLRenderer"]();
+    renderer.setSize( width, height );
+    document.getElementById('game-canvas').appendChild( renderer.domElement );
+
+    this.gameView = new __WEBPACK_IMPORTED_MODULE_5__game_view__["a" /* default */](
+      renderer, camera, scene, this.key, this.musicDelay
+    );
+    this.gameView.setup();
+  }
+
+  addMusic() {
+    const audioPlayer = new __WEBPACK_IMPORTED_MODULE_6__audio_js__["a" /* AudioPlayer */]();
+    return audioPlayer.loadAndPlaySong(`./assets/songs/${fileToPlay}`, DEBUG_MUTE);
+    /*this.music = new Audio(this.musicDelay);
+    this.music.startMusic();
+    setTimeout(this.music.fadeOut.bind(this.music), 213000);*/
+  }
+
+
+  loadMidi() {
+    return new Promise((resolve, reject) =>{
+      Midi.fromUrl(
+        `http://localhost:5000/assets/songs/${fileToPlay}/notes.mid`
+      ).then(midi => {
+          const objectSong = {
+            title: fileToPlay,
+            tickArray: [],
+            tickMap: {},
+            notes: {},
+            tempos: {},
+            timeSignatures: {},
+            bpm: 120,
+            ppq: 192
+          };
+
+
+          const noteMap =  {  //
+            96 :  { difficulty: "AMAZING_DIFFICULTY", note:  0}, // 0x60
+            97: { difficulty:  "AMAZING_DIFFICULTY", note:  1}, // 0x61
+            98: { difficulty:  "AMAZING_DIFFICULTY", note:  2}, // 0x62
+            99: { difficulty:  "AMAZING_DIFFICULTY", note:  3}, // 0x63
+            100: { difficulty:  "AMAZING_DIFFICULTY", note:  4}, // 0x64
+            84: { difficulty:  "MEDIUM_DIFFICULTY", note:   0}, // 0x54
+            85: { difficulty:  "MEDIUM_DIFFICULTY", note:   1}, // 0x55
+            86: { difficulty:  "MEDIUM_DIFFICULTY", note:   2}, // 0x56
+            87: { difficulty:  "MEDIUM_DIFFICULTY", note:   3}, // 0x57
+            88: { difficulty:  "MEDIUM_DIFFICULTY", note:   4}, // 0x58
+            72: { difficulty:  "EASY_DIFFICULTY", note:     0}, // 0x48
+            73: { difficulty:  "EASY_DIFFICULTY", note:     1}, // 0x49
+            74: { difficulty:  "EASY_DIFFICULTY", note:     2}, // 0x4a
+            75: { difficulty:  "EASY_DIFFICULTY", note:     3}, // 0x4b
+            76: { difficulty:  "EASY_DIFFICULTY", note:     4}, // 0x4c
+            60: { difficulty:  "SUPAEASY_DIFFICULTY", note: 0}, // 0x3c
+            61: { difficulty:  "SUPAEASY_DIFFICULTY", note: 1}, // 0x3d
+            62: { difficulty:  "SUPAEASY_DIFFICULTY", note: 2}, // 0x3e
+            63: { difficulty:  "SUPAEASY_DIFFICULTY", note: 3}, // 0x3f
+            64: { difficulty:  "SUPAEASY_DIFFICULTY", note: 4}, // 0x40
+        }
+
+          const mapNote = {};
+          for (let i = 70; i <= 110; i++){
+            mapNote[i] = 0;
+          }
+          midi.tracks.forEach(track => {
+          if (track.name === "PART GUITAR") {
+            track.notes.forEach(note => {
+              let tickEvent = objectSong.tickMap[note.ticks];
+              if (!tickEvent) {
+                tickEvent = {
+                  tick: note.time * 1000,
+                  duration: note.duration * 1000,
+                  tracks: [],
+                  notes: [],
+                  tempo: 120, //this.getTempo(event.tick),
+                  timeSignature: 24 //this.getTimeSignature(event.tick)
+                };
+                objectSong.tickMap[note.ticks] = tickEvent;
+                objectSong.tickArray.push(tickEvent);
+              }
+              const noteCorrespondance = noteMap[note.midi];
+              if (noteCorrespondance
+                && noteCorrespondance.difficulty === 'EASY_DIFFICULTY'){
+                  tickEvent.tracks.push(`${noteCorrespondance.note + 1}`);
+              }
+              /*if (note.midi >= 60 && note.midi < 70) {
+                tickEvent.tracks.push(`1`);
+              } else if (note.midi >= 70 && note.midi < 80) {
+                tickEvent.tracks.push(`2`);
+              } else if (note.midi >= 80 && note.midi < 90) {
+                tickEvent.tracks.push(`3`);
+              } else if (note.midi >= 90 && note.midi < 100) {
+                tickEvent.tracks.push(`4`);
+              } else if (note.midi >= 100 && note.midi < 110) {
+                tickEvent.tracks.push(`5`);
+              }*/
+              mapNote[note.midi] = mapNote[note.midi] + 1;
+            });
+          }
+        });
+        console.log(objectSong);
+        console.table(mapNote);
+        resolve(objectSong);
+      });
+    });
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Game);
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__three___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__three__);
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+ 
+
+__WEBPACK_IMPORTED_MODULE_0__three__["PointerLockControls"] = function ( camera ) {
+
+	var scope = this;
+
+	camera.rotation.set( 0, 0, 0 );
+
+	var pitchObject = new __WEBPACK_IMPORTED_MODULE_0__three__["Object3D"]();
+	pitchObject.add( camera );
+
+	var yawObject = new __WEBPACK_IMPORTED_MODULE_0__three__["Object3D"]();
+	yawObject.position.y = 10;
+	yawObject.add( pitchObject );
+
+	var PI_2 = Math.PI / 2;
+
+	var onMouseMove = function ( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+		var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+
+		yawObject.rotation.y -= movementX * 0.002;
+		pitchObject.rotation.x -= movementY * 0.002;
+
+		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+
+	};
+
+	this.dispose = function() {
+
+		document.removeEventListener( 'mousemove', onMouseMove, false );
+
+	};
+
+	document.addEventListener( 'mousemove', onMouseMove, false );
+
+	this.enabled = false;
+
+	this.getObject = function () {
+
+		return yawObject;
+
+	};
+
+	this.getDirection = function() {
+
+		// assumes the camera itself is not rotated
+
+		var direction = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]( 0, 0, - 1 );
+		var rotation = new __WEBPACK_IMPORTED_MODULE_0__three__["Euler"]( 0, 0, 0, "YXZ" );
+
+		return function( v ) {
+
+			rotation.set( pitchObject.rotation.x, yawObject.rotation.y, 0 );
+
+			v.copy( direction ).applyEuler( rotation );
+
+			return v;
+
+		};
+
+	}();
+
+};
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__three___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__three__);
+/**
+ * @author qiao / https://github.com/qiao
+ * @author mrdoob / http://mrdoob.com
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author erich666 / http://erichaines.com
+ */
+
+// This set of controls performs orbiting, dollying (zooming), and panning.
+// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+//
+//    Orbit - left mouse / touch: one finger move
+//    Zoom - middle mouse, or mousewheel / touch: two finger spread or squish
+//    Pan - right mouse, or arrow keys / touch: three finger swipe
+
+
+
+__WEBPACK_IMPORTED_MODULE_0__three__["OrbitControls"] = function ( object, domElement ) {
+
+	this.object = object;
+
+	this.domElement = ( domElement !== undefined ) ? domElement : document;
+
+	// Set to false to disable this control
+	this.enabled = true;
+
+	// "target" sets the location of focus, where the object orbits around
+	this.target = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+
+	// How far you can dolly in and out ( PerspectiveCamera only )
+	this.minDistance = 0;
+	this.maxDistance = Infinity;
+
+	// How far you can zoom in and out ( OrthographicCamera only )
+	this.minZoom = 0;
+	this.maxZoom = Infinity;
+
+	// How far you can orbit vertically, upper and lower limits.
+	// Range is 0 to Math.PI radians.
+	this.minPolarAngle = 0; // radians
+	this.maxPolarAngle = Math.PI; // radians
+
+	// How far you can orbit horizontally, upper and lower limits.
+	// If set, must be a sub-interval of the interval [ - Math.PI, Math.PI ].
+	this.minAzimuthAngle = - Infinity; // radians
+	this.maxAzimuthAngle = Infinity; // radians
+
+	// Set to true to enable damping (inertia)
+	// If damping is enabled, you must call controls.update() in your animation loop
+	this.enableDamping = false;
+	this.dampingFactor = 0.25;
+
+	// This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
+	// Set to false to disable zooming
+	this.enableZoom = true;
+	this.zoomSpeed = 1.0;
+
+	// Set to false to disable rotating
+	this.enableRotate = true;
+	this.rotateSpeed = 1.0;
+
+	// Set to false to disable panning
+	this.enablePan = true;
+	this.keyPanSpeed = 7.0;	// pixels moved per arrow key push
+
+	// Set to true to automatically rotate around the target
+	// If auto-rotate is enabled, you must call controls.update() in your animation loop
+	this.autoRotate = false;
+	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
+
+	// Set to false to disable use of the keys
+	this.enableKeys = true;
+
+	// The four arrow keys
+	this.keys = { LEFT: 37, UP: 38, RIGHT: 39, BOTTOM: 40 };
+
+	// Mouse buttons
+	this.mouseButtons = { ORBIT: __WEBPACK_IMPORTED_MODULE_0__three__["MOUSE"].LEFT, ZOOM: __WEBPACK_IMPORTED_MODULE_0__three__["MOUSE"].MIDDLE, PAN: __WEBPACK_IMPORTED_MODULE_0__three__["MOUSE"].RIGHT };
+
+	// for reset
+	this.target0 = this.target.clone();
+	this.position0 = this.object.position.clone();
+	this.zoom0 = this.object.zoom;
+
+	//
+	// public methods
+	//
+
+	this.getPolarAngle = function () {
+
+		return spherical.phi;
+
+	};
+
+	this.getAzimuthalAngle = function () {
+
+		return spherical.theta;
+
+	};
+
+	this.saveState = function () {
+
+		scope.target0.copy( scope.target );
+		scope.position0.copy( scope.object.position );
+		scope.zoom0 = scope.object.zoom;
+
+	};
+
+	this.reset = function () {
+
+		scope.target.copy( scope.target0 );
+		scope.object.position.copy( scope.position0 );
+		scope.object.zoom = scope.zoom0;
+
+		scope.object.updateProjectionMatrix();
+		scope.dispatchEvent( changeEvent );
+
+		scope.update();
+
+		state = STATE.NONE;
+
+	};
+
+	// this method is exposed, but perhaps it would be better if we can make it private...
+	this.update = function () {
+
+		var offset = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+
+		// so camera.up is the orbit axis
+		var quat = new __WEBPACK_IMPORTED_MODULE_0__three__["Quaternion"]().setFromUnitVectors( object.up, new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]( 0, 1, 0 ) );
+		var quatInverse = quat.clone().inverse();
+
+		var lastPosition = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+		var lastQuaternion = new __WEBPACK_IMPORTED_MODULE_0__three__["Quaternion"]();
+
+		return function update() {
+
+			var position = scope.object.position;
+
+			offset.copy( position ).sub( scope.target );
+
+			// rotate offset to "y-axis-is-up" space
+			offset.applyQuaternion( quat );
+
+			// angle from z-axis around y-axis
+			spherical.setFromVector3( offset );
+
+			if ( scope.autoRotate && state === STATE.NONE ) {
+
+				rotateLeft( getAutoRotationAngle() );
+
+			}
+
+			spherical.theta += sphericalDelta.theta;
+			spherical.phi += sphericalDelta.phi;
+
+			// restrict theta to be between desired limits
+			spherical.theta = Math.max( scope.minAzimuthAngle, Math.min( scope.maxAzimuthAngle, spherical.theta ) );
+
+			// restrict phi to be between desired limits
+			spherical.phi = Math.max( scope.minPolarAngle, Math.min( scope.maxPolarAngle, spherical.phi ) );
+
+			spherical.makeSafe();
+
+
+			spherical.radius *= scale;
+
+			// restrict radius to be between desired limits
+			spherical.radius = Math.max( scope.minDistance, Math.min( scope.maxDistance, spherical.radius ) );
+
+			// move target to panned location
+			scope.target.add( panOffset );
+
+			offset.setFromSpherical( spherical );
+
+			// rotate offset back to "camera-up-vector-is-up" space
+			offset.applyQuaternion( quatInverse );
+
+			position.copy( scope.target ).add( offset );
+
+			scope.object.lookAt( scope.target );
+
+			if ( scope.enableDamping === true ) {
+
+				sphericalDelta.theta *= ( 1 - scope.dampingFactor );
+				sphericalDelta.phi *= ( 1 - scope.dampingFactor );
+
+			} else {
+
+				sphericalDelta.set( 0, 0, 0 );
+
+			}
+
+			scale = 1;
+			panOffset.set( 0, 0, 0 );
+
+			// update condition is:
+			// min(camera displacement, camera rotation in radians)^2 > EPS
+			// using small-angle approximation cos(x/2) = 1 - x^2 / 8
+
+			if ( zoomChanged ||
+				lastPosition.distanceToSquared( scope.object.position ) > EPS ||
+				8 * ( 1 - lastQuaternion.dot( scope.object.quaternion ) ) > EPS ) {
+
+				scope.dispatchEvent( changeEvent );
+
+				lastPosition.copy( scope.object.position );
+				lastQuaternion.copy( scope.object.quaternion );
+				zoomChanged = false;
+
+				return true;
+
+			}
+
+			return false;
+
+		};
+
+	}();
+
+	this.dispose = function () {
+
+		scope.domElement.removeEventListener( 'contextmenu', onContextMenu, false );
+		scope.domElement.removeEventListener( 'mousedown', onMouseDown, false );
+		scope.domElement.removeEventListener( 'wheel', onMouseWheel, false );
+
+		scope.domElement.removeEventListener( 'touchstart', onTouchStart, false );
+		scope.domElement.removeEventListener( 'touchend', onTouchEnd, false );
+		scope.domElement.removeEventListener( 'touchmove', onTouchMove, false );
+
+		document.removeEventListener( 'mousemove', onMouseMove, false );
+		document.removeEventListener( 'mouseup', onMouseUp, false );
+
+		window.removeEventListener( 'keydown', onKeyDown, false );
+
+		//scope.dispatchEvent( { type: 'dispose' } ); // should this be added here?
+
+	};
+
+	//
+	// internals
+	//
+
+	var scope = this;
+
+	var changeEvent = { type: 'change' };
+	var startEvent = { type: 'start' };
+	var endEvent = { type: 'end' };
+
+	var STATE = { NONE: - 1, ROTATE: 0, DOLLY: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_DOLLY: 4, TOUCH_PAN: 5 };
+
+	var state = STATE.NONE;
+
+	var EPS = 0.000001;
+
+	// current position in spherical coordinates
+	var spherical = new __WEBPACK_IMPORTED_MODULE_0__three__["Spherical"]();
+	var sphericalDelta = new __WEBPACK_IMPORTED_MODULE_0__three__["Spherical"]();
+
+	var scale = 1;
+	var panOffset = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+	var zoomChanged = false;
+
+	var rotateStart = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+	var rotateEnd = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+	var rotateDelta = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+
+	var panStart = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+	var panEnd = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+	var panDelta = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+
+	var dollyStart = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+	var dollyEnd = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+	var dollyDelta = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector2"]();
+
+	function getAutoRotationAngle() {
+
+		return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+
+	}
+
+	function getZoomScale() {
+
+		return Math.pow( 0.95, scope.zoomSpeed );
+
+	}
+
+	function rotateLeft( angle ) {
+
+		sphericalDelta.theta -= angle;
+
+	}
+
+	function rotateUp( angle ) {
+
+		sphericalDelta.phi -= angle;
+
+	}
+
+	var panLeft = function () {
+
+		var v = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+
+		return function panLeft( distance, objectMatrix ) {
+
+			v.setFromMatrixColumn( objectMatrix, 0 ); // get X column of objectMatrix
+			v.multiplyScalar( - distance );
+
+			panOffset.add( v );
+
+		};
+
+	}();
+
+	var panUp = function () {
+
+		var v = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+
+		return function panUp( distance, objectMatrix ) {
+
+			v.setFromMatrixColumn( objectMatrix, 1 ); // get Y column of objectMatrix
+			v.multiplyScalar( distance );
+
+			panOffset.add( v );
+
+		};
+
+	}();
+
+	// deltaX and deltaY are in pixels; right and down are positive
+	var pan = function () {
+
+		var offset = new __WEBPACK_IMPORTED_MODULE_0__three__["Vector3"]();
+
+		return function pan( deltaX, deltaY ) {
+
+			var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+			if ( scope.object.isPerspectiveCamera ) {
+
+				// perspective
+				var position = scope.object.position;
+				offset.copy( position ).sub( scope.target );
+				var targetDistance = offset.length();
+
+				// half of the fov is center to top of screen
+				targetDistance *= Math.tan( ( scope.object.fov / 2 ) * Math.PI / 180.0 );
+
+				// we actually don't use screenWidth, since perspective camera is fixed to screen height
+				panLeft( 2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix );
+				panUp( 2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix );
+
+			} else if ( scope.object.isOrthographicCamera ) {
+
+				// orthographic
+				panLeft( deltaX * ( scope.object.right - scope.object.left ) / scope.object.zoom / element.clientWidth, scope.object.matrix );
+				panUp( deltaY * ( scope.object.top - scope.object.bottom ) / scope.object.zoom / element.clientHeight, scope.object.matrix );
+
+			} else {
+
+				// camera neither orthographic nor perspective
+				console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.' );
+				scope.enablePan = false;
+
+			}
+
+		};
+
+	}();
+
+	function dollyIn( dollyScale ) {
+
+		if ( scope.object.isPerspectiveCamera ) {
+
+			scale /= dollyScale;
+
+		} else if ( scope.object.isOrthographicCamera ) {
+
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * dollyScale ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+
+		} else {
+
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
+
+		}
+
+	}
+
+	function dollyOut( dollyScale ) {
+
+		if ( scope.object.isPerspectiveCamera ) {
+
+			scale *= dollyScale;
+
+		} else if ( scope.object.isOrthographicCamera ) {
+
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / dollyScale ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+
+		} else {
+
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
+
+		}
+
+	}
+
+	//
+	// event callbacks - update the object state
+	//
+
+	function handleMouseDownRotate( event ) {
+
+		//console.log( 'handleMouseDownRotate' );
+
+		rotateStart.set( event.clientX, event.clientY );
+
+	}
+
+	function handleMouseDownDolly( event ) {
+
+		//console.log( 'handleMouseDownDolly' );
+
+		dollyStart.set( event.clientX, event.clientY );
+
+	}
+
+	function handleMouseDownPan( event ) {
+
+		//console.log( 'handleMouseDownPan' );
+
+		panStart.set( event.clientX, event.clientY );
+
+	}
+
+	function handleMouseMoveRotate( event ) {
+
+		//console.log( 'handleMouseMoveRotate' );
+
+		rotateEnd.set( event.clientX, event.clientY );
+		rotateDelta.subVectors( rotateEnd, rotateStart );
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		// rotating across whole screen goes 360 degrees around
+		rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+
+		// rotating up and down along whole screen attempts to go 360, but limited to 180
+		rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+
+		rotateStart.copy( rotateEnd );
+
+		scope.update();
+
+	}
+
+	function handleMouseMoveDolly( event ) {
+
+		//console.log( 'handleMouseMoveDolly' );
+
+		dollyEnd.set( event.clientX, event.clientY );
+
+		dollyDelta.subVectors( dollyEnd, dollyStart );
+
+		if ( dollyDelta.y > 0 ) {
+
+			dollyIn( getZoomScale() );
+
+		} else if ( dollyDelta.y < 0 ) {
+
+			dollyOut( getZoomScale() );
+
+		}
+
+		dollyStart.copy( dollyEnd );
+
+		scope.update();
+
+	}
+
+	function handleMouseMovePan( event ) {
+
+		//console.log( 'handleMouseMovePan' );
+
+		panEnd.set( event.clientX, event.clientY );
+
+		panDelta.subVectors( panEnd, panStart );
+
+		pan( panDelta.x, panDelta.y );
+
+		panStart.copy( panEnd );
+
+		scope.update();
+
+	}
+
+	function handleMouseUp( event ) {
+
+		// console.log( 'handleMouseUp' );
+
+	}
+
+	function handleMouseWheel( event ) {
+
+		// console.log( 'handleMouseWheel' );
+
+		if ( event.deltaY < 0 ) {
+
+			dollyOut( getZoomScale() );
+
+		} else if ( event.deltaY > 0 ) {
+
+			dollyIn( getZoomScale() );
+
+		}
+
+		scope.update();
+
+	}
+
+	function handleKeyDown( event ) {
+
+		//console.log( 'handleKeyDown' );
+
+		switch ( event.keyCode ) {
+
+			case scope.keys.UP:
+				pan( 0, scope.keyPanSpeed );
+				scope.update();
+				break;
+
+			case scope.keys.BOTTOM:
+				pan( 0, - scope.keyPanSpeed );
+				scope.update();
+				break;
+
+			case scope.keys.LEFT:
+				pan( scope.keyPanSpeed, 0 );
+				scope.update();
+				break;
+
+			case scope.keys.RIGHT:
+				pan( - scope.keyPanSpeed, 0 );
+				scope.update();
+				break;
+
+		}
+
+	}
+
+	function handleTouchStartRotate( event ) {
+
+		//console.log( 'handleTouchStartRotate' );
+
+		rotateStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+
+	}
+
+	function handleTouchStartDolly( event ) {
+
+		//console.log( 'handleTouchStartDolly' );
+
+		var dx = event.touches[ 0 ].pageX - event.touches[ 1 ].pageX;
+		var dy = event.touches[ 0 ].pageY - event.touches[ 1 ].pageY;
+
+		var distance = Math.sqrt( dx * dx + dy * dy );
+
+		dollyStart.set( 0, distance );
+
+	}
+
+	function handleTouchStartPan( event ) {
+
+		//console.log( 'handleTouchStartPan' );
+
+		panStart.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+
+	}
+
+	function handleTouchMoveRotate( event ) {
+
+		//console.log( 'handleTouchMoveRotate' );
+
+		rotateEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+		rotateDelta.subVectors( rotateEnd, rotateStart );
+
+		var element = scope.domElement === document ? scope.domElement.body : scope.domElement;
+
+		// rotating across whole screen goes 360 degrees around
+		rotateLeft( 2 * Math.PI * rotateDelta.x / element.clientWidth * scope.rotateSpeed );
+
+		// rotating up and down along whole screen attempts to go 360, but limited to 180
+		rotateUp( 2 * Math.PI * rotateDelta.y / element.clientHeight * scope.rotateSpeed );
+
+		rotateStart.copy( rotateEnd );
+
+		scope.update();
+
+	}
+
+	function handleTouchMoveDolly( event ) {
+
+		//console.log( 'handleTouchMoveDolly' );
+
+		var dx = event.touches[ 0 ].pageX - event.touches[ 1 ].pageX;
+		var dy = event.touches[ 0 ].pageY - event.touches[ 1 ].pageY;
+
+		var distance = Math.sqrt( dx * dx + dy * dy );
+
+		dollyEnd.set( 0, distance );
+
+		dollyDelta.subVectors( dollyEnd, dollyStart );
+
+		if ( dollyDelta.y > 0 ) {
+
+			dollyOut( getZoomScale() );
+
+		} else if ( dollyDelta.y < 0 ) {
+
+			dollyIn( getZoomScale() );
+
+		}
+
+		dollyStart.copy( dollyEnd );
+
+		scope.update();
+
+	}
+
+	function handleTouchMovePan( event ) {
+
+		//console.log( 'handleTouchMovePan' );
+
+		panEnd.set( event.touches[ 0 ].pageX, event.touches[ 0 ].pageY );
+
+		panDelta.subVectors( panEnd, panStart );
+
+		pan( panDelta.x, panDelta.y );
+
+		panStart.copy( panEnd );
+
+		scope.update();
+
+	}
+
+	function handleTouchEnd( event ) {
+
+		//console.log( 'handleTouchEnd' );
+
+	}
+
+	//
+	// event handlers - FSM: listen for events and reset state
+	//
+
+	function onMouseDown( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		event.preventDefault();
+
+		switch ( event.button ) {
+
+			case scope.mouseButtons.ORBIT:
+
+				if ( scope.enableRotate === false ) return;
+
+				handleMouseDownRotate( event );
+
+				state = STATE.ROTATE;
+
+				break;
+
+			case scope.mouseButtons.ZOOM:
+
+				if ( scope.enableZoom === false ) return;
+
+				handleMouseDownDolly( event );
+
+				state = STATE.DOLLY;
+
+				break;
+
+			case scope.mouseButtons.PAN:
+
+				if ( scope.enablePan === false ) return;
+
+				handleMouseDownPan( event );
+
+				state = STATE.PAN;
+
+				break;
+
+		}
+
+		if ( state !== STATE.NONE ) {
+
+			document.addEventListener( 'mousemove', onMouseMove, false );
+			document.addEventListener( 'mouseup', onMouseUp, false );
+
+			scope.dispatchEvent( startEvent );
+
+		}
+
+	}
+
+	function onMouseMove( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		event.preventDefault();
+
+		switch ( state ) {
+
+			case STATE.ROTATE:
+
+				if ( scope.enableRotate === false ) return;
+
+				handleMouseMoveRotate( event );
+
+				break;
+
+			case STATE.DOLLY:
+
+				if ( scope.enableZoom === false ) return;
+
+				handleMouseMoveDolly( event );
+
+				break;
+
+			case STATE.PAN:
+
+				if ( scope.enablePan === false ) return;
+
+				handleMouseMovePan( event );
+
+				break;
+
+		}
+
+	}
+
+	function onMouseUp( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		handleMouseUp( event );
+
+		document.removeEventListener( 'mousemove', onMouseMove, false );
+		document.removeEventListener( 'mouseup', onMouseUp, false );
+
+		scope.dispatchEvent( endEvent );
+
+		state = STATE.NONE;
+
+	}
+
+	function onMouseWheel( event ) {
+
+		if ( scope.enabled === false || scope.enableZoom === false || ( state !== STATE.NONE && state !== STATE.ROTATE ) ) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		handleMouseWheel( event );
+
+		scope.dispatchEvent( startEvent ); // not sure why these are here...
+		scope.dispatchEvent( endEvent );
+
+	}
+
+	function onKeyDown( event ) {
+
+		if ( scope.enabled === false || scope.enableKeys === false || scope.enablePan === false ) return;
+
+		handleKeyDown( event );
+
+	}
+
+	function onTouchStart( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		switch ( event.touches.length ) {
+
+			case 1:	// one-fingered touch: rotate
+
+				if ( scope.enableRotate === false ) return;
+
+				handleTouchStartRotate( event );
+
+				state = STATE.TOUCH_ROTATE;
+
+				break;
+
+			case 2:	// two-fingered touch: dolly
+
+				if ( scope.enableZoom === false ) return;
+
+				handleTouchStartDolly( event );
+
+				state = STATE.TOUCH_DOLLY;
+
+				break;
+
+			case 3: // three-fingered touch: pan
+
+				if ( scope.enablePan === false ) return;
+
+				handleTouchStartPan( event );
+
+				state = STATE.TOUCH_PAN;
+
+				break;
+
+			default:
+
+				state = STATE.NONE;
+
+		}
+
+		if ( state !== STATE.NONE ) {
+
+			scope.dispatchEvent( startEvent );
+
+		}
+
+	}
+
+	function onTouchMove( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		switch ( event.touches.length ) {
+
+			case 1: // one-fingered touch: rotate
+
+				if ( scope.enableRotate === false ) return;
+				if ( state !== STATE.TOUCH_ROTATE ) return; // is this needed?...
+
+				handleTouchMoveRotate( event );
+
+				break;
+
+			case 2: // two-fingered touch: dolly
+
+				if ( scope.enableZoom === false ) return;
+				if ( state !== STATE.TOUCH_DOLLY ) return; // is this needed?...
+
+				handleTouchMoveDolly( event );
+
+				break;
+
+			case 3: // three-fingered touch: pan
+
+				if ( scope.enablePan === false ) return;
+				if ( state !== STATE.TOUCH_PAN ) return; // is this needed?...
+
+				handleTouchMovePan( event );
+
+				break;
+
+			default:
+
+				state = STATE.NONE;
+
+		}
+
+	}
+
+	function onTouchEnd( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		handleTouchEnd( event );
+
+		scope.dispatchEvent( endEvent );
+
+		state = STATE.NONE;
+
+	}
+
+	function onContextMenu( event ) {
+
+		if ( scope.enabled === false ) return;
+
+		event.preventDefault();
+
+	}
+
+	//
+
+	scope.domElement.addEventListener( 'contextmenu', onContextMenu, false );
+
+	scope.domElement.addEventListener( 'mousedown', onMouseDown, false );
+	scope.domElement.addEventListener( 'wheel', onMouseWheel, false );
+
+	scope.domElement.addEventListener( 'touchstart', onTouchStart, false );
+	scope.domElement.addEventListener( 'touchend', onTouchEnd, false );
+	scope.domElement.addEventListener( 'touchmove', onTouchMove, false );
+
+	window.addEventListener( 'keydown', onKeyDown, false );
+
+	// force an update at start
+
+	this.update();
+
+};
+
+__WEBPACK_IMPORTED_MODULE_0__three__["OrbitControls"].prototype = Object.create( __WEBPACK_IMPORTED_MODULE_0__three__["EventDispatcher"].prototype );
+__WEBPACK_IMPORTED_MODULE_0__three__["OrbitControls"].prototype.constructor = __WEBPACK_IMPORTED_MODULE_0__three__["OrbitControls"];
+
+Object.defineProperties( __WEBPACK_IMPORTED_MODULE_0__three__["OrbitControls"].prototype, {
+
+	center: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .center has been renamed to .target' );
+			return this.target;
+
+		}
+
+	},
+
+	// backward compatibility
+
+	noZoom: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.' );
+			return ! this.enableZoom;
+
+		},
+
+		set: function ( value ) {
+
+			console.warn( 'THREE.OrbitControls: .noZoom has been deprecated. Use .enableZoom instead.' );
+			this.enableZoom = ! value;
+
+		}
+
+	},
+
+	noRotate: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.' );
+			return ! this.enableRotate;
+
+		},
+
+		set: function ( value ) {
+
+			console.warn( 'THREE.OrbitControls: .noRotate has been deprecated. Use .enableRotate instead.' );
+			this.enableRotate = ! value;
+
+		}
+
+	},
+
+	noPan: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.' );
+			return ! this.enablePan;
+
+		},
+
+		set: function ( value ) {
+
+			console.warn( 'THREE.OrbitControls: .noPan has been deprecated. Use .enablePan instead.' );
+			this.enablePan = ! value;
+
+		}
+
+	},
+
+	noKeys: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.' );
+			return ! this.enableKeys;
+
+		},
+
+		set: function ( value ) {
+
+			console.warn( 'THREE.OrbitControls: .noKeys has been deprecated. Use .enableKeys instead.' );
+			this.enableKeys = ! value;
+
+		}
+
+	},
+
+	staticMoving: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.' );
+			return ! this.enableDamping;
+
+		},
+
+		set: function ( value ) {
+
+			console.warn( 'THREE.OrbitControls: .staticMoving has been deprecated. Use .enableDamping instead.' );
+			this.enableDamping = ! value;
+
+		}
+
+	},
+
+	dynamicDampingFactor: {
+
+		get: function () {
+
+			console.warn( 'THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.' );
+			return this.dampingFactor;
+
+		},
+
+		set: function ( value ) {
+
+			console.warn( 'THREE.OrbitControls: .dynamicDampingFactor has been renamed. Use .dampingFactor instead.' );
+			this.dampingFactor = value;
+
+		}
+
+	}
+
+} );
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+// KEY LOGIC ADAPTED FROM https://github.com/nklsrh/BuildNewGames_ThreeJSGame/blob/gh-pages/Scripts/keyboard.js
+// Will use this Key.isDown boolean to test if it is being pressed at the right time.
+
+class Key {
+  constructor() {
+    this._pressed = {};
+    this._pressedVisually = {};
+    this.pos = {
+      1: 65,
+      2: 83,
+      3: 68,
+      4: 70,
+      5: 71
+    };
+    this.A = 65;  // songNote.pos: 1
+    this.S = 83;  // songNote.pos: 2
+    this.D = 68;  // songNote.pos: 3
+    this.F = 70;  // songNote.pos: 4
+    this.G = 71;  // songNote.pos: 5
+
+    this.addKeyListeners();
+  }
+
+  addKeyListeners() {
+    window.addEventListener('keydown', (e) => {
+      this.onKeydown(e);
+    });
+    window.addEventListener('keyup', (e) => {
+      this.onKeyup(e);
+    });
+  }
+
+  isDown(keyCode) {
+    return this._pressed[keyCode];
+  }
+
+  isDownVisually(keyCode) {
+    return this._pressedVisually[keyCode];
+  }
+
+  onKeydown(e) {
+    this._pressed[e.keyCode] = true;
+    this._pressedVisually[e.keyCode] = true;
+  }
+
+  onKeyup(e) {
+    delete this._pressedVisually[e.keyCode];
+    let buffer = 300; // buffer for leniency
+    setTimeout( () => {
+      delete this._pressed[e.keyCode];
+    }, buffer);
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Key);
+
+
+/***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vendor_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vendor_three___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__vendor_three__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__light__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__game_notes__ = __webpack_require__(1);
+
+
+
+
+class GameView {
+  constructor(renderer, camera, scene, key, musicDelay) {
+    this.renderer = renderer;
+    this.camera = camera;
+    this.scene = scene;
+    this.key = key;
+    this.musicDelay = musicDelay;
+
+    this.note = {};
+
+    this.zStartPoint = -500;
+    this.zEndPoint = 0;
+    this.yStartPoint = 50;
+    this.yEndPoint = -75;
+    this.xPos = [-50, -25, 0, 25, 50];
+
+    this.xRotation = -Math.atan(
+      (this.zEndPoint - this.zStartPoint) / (this.yStartPoint - this.yEndPoint)
+    );
+
+    this.spheres = [];
+
+    this.t = 0;
+    this.measures = [0];
+
+    // Addition
+    this.startTime = 0;
+    this.objectSong = undefined;
+
+
+    this.gameNotes = new __WEBPACK_IMPORTED_MODULE_2__game_notes__["a" /* default */](
+      undefined, undefined, undefined
+    );
+  }
+
+  setup() {
+    this.setWindowResizer();
+    this.backgroundSetup();
+    this.addFretBoard();
+    this.setNoteAttributes();
+    this.gameLoop();
+  }
+
+  setWindowResizer() {
+    let width,
+      height;
+
+    window.addEventListener( 'resize', () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      this.renderer.setSize( width, height);
+      this.camera.aspect = width / height;
+      this.camera.updateProjectionMatrix();
+    });
+  }
+
+  backgroundSetup() {
+    let backgroundGeometry = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["BoxGeometry"]( 2000, 1000, 1000 );
+    let backgroundMaterials = [ "", "", "", "", "",
+      new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["MeshPhongMaterial"]( {
+        map: new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["TextureLoader"]().load( 'photos/stage.jpeg' ),
+        side: __WEBPACK_IMPORTED_MODULE_0__vendor_three__["DoubleSide"]
+      } )
+    ];
+
+    let backgroundMaterial = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["MeshFaceMaterial"]( backgroundMaterials );
+
+    this.light = new __WEBPACK_IMPORTED_MODULE_1__light__["a" /* default */](this.scene);
+    this.light.addLights();
+    // this.light.addMovingLights();
+
+    let background = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Mesh"]( backgroundGeometry, backgroundMaterial );
+    this.scene.add( background );
+
+    // LINES (STRINGS)
+    this.lineMaterial = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["LineBasicMaterial"]({ color: 0xFFFFFF });
+    for (let i = 0; i < 5; i++) {
+      let lineGeometry = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Geometry"]();
+      lineGeometry.vertices.push(new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Vector3"](
+        this.xPos[i], this.yStartPoint, this.zStartPoint));
+      lineGeometry.vertices.push(new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Vector3"](
+        this.xPos[i], this.yEndPoint, this.zEndPoint));
+      let line = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Line"](lineGeometry, this.lineMaterial);
+      this.scene.add(line);
+    }
+
+  }
+
+  addFretBoard() {
+    let width = this.xPos[4] - this.xPos[0] + 50;
+    let height = Math.sqrt(
+      Math.pow((this.zEndPoint - this.zStartPoint), 2)
+        + Math.pow((this.yEndPoint - this.yStartPoint), 2)
+    );
+    let boardGeometry = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["PlaneGeometry"]( width, height );
+    let boardMaterial = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["MeshPhongMaterial"]( {
+      color: 0x000000,
+      side: __WEBPACK_IMPORTED_MODULE_0__vendor_three__["DoubleSide"],
+      transparent: true,
+      opacity: .6
+    } );
+    let board = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Mesh"]( boardGeometry, boardMaterial );
+    board.rotateX(this.xRotation);
+    board.position.set(0, -15, -250);
+    this.scene.add( board ) ;
+  }
+
+  setNoteAttributes() {
+    this.note.vel = .75;
+
+    this.note.yVel = this.note.vel * (this.yEndPoint - this.yStartPoint) / 100;
+    this.note.zVel = this.note.vel * (this.zEndPoint - this.zStartPoint) / 100;
+
+    this.note.radius = 7.5;
+
+    this.note.colors = [];
+    this.note.colors[0] = 0x4C7048; // Green
+    this.note.colors[1] = 0xDA3A3C; // Red
+    this.note.colors[2] = 0xffeb3b; // Yellow
+    this.note.colors[3] = 0x3f51b5; // Blue
+    this.note.colors[4] = 0xff5722; // Orange
+    this.note.colors[5] = 0xffffff; // White - selected
+
+    this.note.geometry = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["SphereGeometry"](this.note.radius);
+
+    this.note.materials = [];
+    this.note.colors.forEach( (color, idx) => {
+    this.note.materials[idx] =
+       new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["MeshPhongMaterial"]( { color: this.note.colors[idx] } );
+    });
+
+    const circleGeometry = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["CircleGeometry"](this.note.radius);
+    const circles = [];
+    for (let i = 0; i < 5; i ++) {
+      circles[i] = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Mesh"](circleGeometry, this.note.materials[i]);
+    }
+
+    circles.forEach((circle, idx) => {
+      circle.position.set(
+      this.xPos[idx],
+      this.yEndPoint,
+      this.zEndPoint
+      );
+      circle.rotateX(-.2);
+
+      // LIGHT UP CIRCLE WHEN KEY IS PRESSED
+      setInterval( () => {
+        if (this.key.isDownVisually(this.key.pos[idx + 1])) {
+           circle.material = this.note.materials[5];
+         } else {
+           circle.material = this.note.materials[idx];
+         }
+      }, 100);
+
+      this.scene.add(circle);
+    });
+  }
+
+  addMovingNotes(noteInterval, objectSong, currentTime) {
+    let noteMaterial;
+    this.startTime = currentTime;
+    this.objectSong = objectSong;
+
+  }
+
+  
+  processTicks(){
+    if (!this.objectSong) return;
+
+    let nextTick = null;
+    let tickIndex = 0;
+    // Time ellapse since the song start 
+    const timeEllapseSinceStartOfSong = Date.now() - this.startTime;
+    while (!nextTick && tickIndex < this.objectSong.tickArray.length) {
+      const tempTick = this.objectSong.tickArray[tickIndex];
+      tickIndex++;
+      if (tempTick.process) continue;
+      // Tick is the time in millisecond of the note. So
+      // If tick is passed (inferor of time time ellapse since start of song),
+      // It means that the note was already played according to time of song
+      if (tempTick.tick < timeEllapseSinceStartOfSong){
+        tempTick.process = true;
+        continue;
+      }
+      nextTick = tempTick;
+    }
+    if (nextTick) {
+      const tickTimeInMs = nextTick.tick;
+
+      // Special case we take all one of the first 10 secconds
+      if (tickTimeInMs < 10000) {
+        //console.log('<5000', this.startTime, delta, tickTimeInMs);
+        nextTick.process = true;
+        this.addNote(nextTick, timeEllapseSinceStartOfSong);
+        
+        // We only take note that will be played in the next 10 seconds
+      } else if (timeEllapseSinceStartOfSong + 10000 > tickTimeInMs) {
+        nextTick.process = true;
+        //console.log('Delta 5000', this.startTime, delta, tickTimeInMs);
+        this.addNote(nextTick, timeEllapseSinceStartOfSong);
+      }
+    }
+  }
+
+  
+  addNote(tickNote, timeEllapseSinceStartOfSong){
+
+    // A tick note contains tracks of notes
+    tickNote.tracks.forEach(track => {
+      // We first got the right material (color of note according to track)
+      const noteMaterial = this.note.materials[+track - 1];
+      const noteMesh = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["Mesh"](this.note.geometry, noteMaterial);
+      // The moveTime is the time of note in the song minus the time ellapse since the start of the song
+      // This means that it will indicate in how many milliseconds the note will ends
+      // Normally the moveTime is closed to 10 000 milliseconds (except for the first 10 sec of the song)
+      noteMesh.moveTime = tickNote.tick - timeEllapseSinceStartOfSong;
+      // the ellapseTime indicate when the note appears on screen (it's time)
+      noteMesh.ellapseTime = Date.now();
+      noteMesh.noteIndex = +track - 1;
+      noteMesh.position.set(
+        this.xPos[+track - 1],
+        (this.yStartPoint),
+        (this.zStartPoint));
+      this.spheres.push(noteMesh);
+      this.scene.add(noteMesh);
+      }
+    );
+
+  }
+
+
+  sceneUpdateNew() {
+    this.processTicks();
+    this.spheres.forEach(sphere => {
+      if (sphere.noteFinished) return;
+
+      // Time Ellapse for note is the time of note lives => normally between 0 and 10 000
+      const timeEllapseForNote = (Date.now() - sphere.ellapseTime);
+      // If time ellapse for note is upper the move time of note, it means that the note 
+      // travel in the board to the end => the note is finished
+      if (timeEllapseForNote > sphere.moveTime || sphere.moveTime < 0) {
+        sphere.noteFinished = true;
+      }
+
+      if (!sphere.noteFinished){
+        const percent = timeEllapseForNote / sphere.moveTime;
+        
+        sphere.position.y = -Math.abs(this.yEndPoint - this.yStartPoint) * percent + this.yStartPoint;
+        sphere.position.z = Math.abs(this.zStartPoint - this.zEndPoint) * percent + this.zStartPoint;
+        if (sphere.position.z > this.zEndPoint) {
+          sphere.noteFinished = true;
+        }
+      }
+
+      if (sphere.noteFinished){
+        this.scene.remove(sphere);
+      }
+
+      this.processNotePressed(sphere, timeEllapseForNote);
+    });
+
+   
+  }
+
+
+  processNotePressed(noteMesh, timeEllapseForNote){
+    // Before the end of the note (100 last ms) we check if the note was pressed
+    if (!noteMesh.noteFinished && !noteMesh.pressed && (noteMesh.moveTime - timeEllapseForNote) < 500) {
+      if (this.key.isDownVisually(this.key.pos[noteMesh.noteIndex + 1])) {
+        console.log(`Note Pressed : Idx: ${noteMesh.noteIndex}  : moveTime : ${noteMesh.moveTime} / timeEllapse : ${timeEllapseForNote}`)
+        noteMesh.pressed = true;
+        this.gameNotes.incrementHits();
+        this.gameNotes.incrementScore();
+      } 
+    }else if (noteMesh.noteFinished && !noteMesh.pressed){
+      console.error(`Note missed : Idx: ${noteMesh.noteIndex} : moveTime : ${noteMesh.moveTime} / timeEllapse : ${timeEllapseForNote}`);
+      this.gameNotes.resetHits();
+    }else {
+      // Determine when a note is wrongly typed
+      // The code below is play everytime there is a note on screen, it could be a note at 
+      // the begining of the frets or at the end.
+
+      // We check every wrong note pressed
+      /*Object.keys(this.key.pos).forEach(pos => {
+        if (!noteMesh.inError && this.key.isDownVisually(this.key.pos[+pos])){
+          noteMesh.inError = true;
+          console.warn(`Wrong note pressed : ${pos}`);
+        }
+      })*/
+    }
+
+  }
+
+  sceneUpdate() {
+    this.spheres.forEach(sphere => {
+      sphere.position.y += this.note.yVel;
+      sphere.position.z += this.note.zVel;
+      if (sphere.position.z > this.zEndPoint) {
+        this.scene.remove(sphere);
+      }
+    });
+    
+  }
+
+  sceneRender() {
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  gameLoop() {
+    requestAnimationFrame(this.gameLoop.bind(this));
+
+    this.sceneUpdateNew();
+    this.sceneRender();
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (GameView);
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vendor_three__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__vendor_three___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__vendor_three__);
+
+
+class Light {
+  constructor(scene) {
+    this.scene = scene;
+  }
+
+  addLights() {
+    let lights = [];
+    lights[0] = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["PointLight"]( 0xFFFFFF, .9, 10000);
+    lights[0].position.set(0, 300, 0);
+    lights[1] = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["PointLight"]( 0xFFFFFF, 1, 2000);
+    lights[1].position.set(0, 200, 100);
+    lights.forEach(light => this.scene.add(light));
+  }
+
+  addMovingLights() {
+    this.movingLights = [];
+    // this.movingLights[0] = new THREE.PointLight( 0xFFFFFF, .5, 10000);
+    // this.movingLights[0].position.set(0, 300, 0);
+    this.movingLights[0] = new __WEBPACK_IMPORTED_MODULE_0__vendor_three__["SpotLight"]( 0xFFFFFF, 1, 5000, .5 );
+    this.movingLights[0].position.set(200, 0, 0);
+    this.movingLights.forEach(light => this.scene.add(light));
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Light);
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+
+class AudioPlayer {
+    constructor() {
+        try {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.context = new AudioContext();
+            this.buffer = undefined;
+            this.bufferGuitar = undefined;
+        } catch (e) {
+            console.log("No WebAPI dectect");
+        }
+    }
+
+    _loadSound(url, bufferToUse) {
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', url, true);
+            request.responseType = 'arraybuffer';
+
+            // Decode asynchronously
+            request.onload = () => {
+                this.context.decodeAudioData(request.response, (buffer) => {
+                    this.buffer = buffer;
+                    resolve();
+                }, (e) => {
+                    reject();
+                    console.log('Error decoding file', e);
+                });
+            }
+            request.send();
+        })
+    }
+    _loadSoundGuitar(url, bufferToUse) {
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            request.open('GET', url, true);
+            request.responseType = 'arraybuffer';
+
+            // Decode asynchronously
+            request.onload = () => {
+                this.context.decodeAudioData(request.response, (buffer) => {
+                    this.bufferGuitar = buffer;
+                    resolve();
+                }, (e) => {
+                    reject();
+                    console.log('Error decoding file', e);
+                });
+            }
+            request.send();
+        })
+    }
+
+
+
+
+    /*****************************
+     ******************************
+     * Apis exposed
+     ******************************
+     ******************************
+     */
+
+    loadAndPlaySong(songPath, mute) {
+        return this._loadSound(`${songPath}/song.ogg`)
+            .then(_=> this._loadSoundGuitar(`${songPath}/guitar.ogg`))
+            .then(_ => {
+                const source = this.context.createBufferSource(); // creates a sound source
+                const sourceGuitar = this.context.createBufferSource(); // creates a sound source
+                source.buffer = this.buffer; // tell the source which sound to play
+                sourceGuitar.buffer = this.bufferGuitar; // tell the source which sound to play
+                source.connect(this.context.destination); // connect the source to the context's destination (the speakers)
+                sourceGuitar.connect(this.context.destination); // connect the source to the context's destination (the speakers)
+                if (!mute){
+                    source.start(0); // play the source now
+                    sourceGuitar.start(0); // play the source now
+                }
+                return {source, sourceGuitar};
+            })
+            .then(({source, sourceGuitar}) => {
+                this.currentSource = source;
+            });
+    }
+
+
+    stop() {
+        if (this.currentSource && this.currentSource.stop) {
+            this.currentSource.stop(0);
+        }
+    }
+
+    time(){
+        return this.context.currentTime;
+    }
+
+
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = AudioPlayer;
+
+
+/***/ })
+/******/ ]);
+//# sourceMappingURL=bundle.js.map
