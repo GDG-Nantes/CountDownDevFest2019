@@ -4,12 +4,11 @@ import GameNotes from './game_notes'
 import { throws } from 'assert'
 
 class GameView {
-  constructor(renderer, camera, scene, key, musicDelay, noteToShow) {
+  constructor(renderer, camera, scene, key, noteToShow) {
     this.renderer = renderer
     this.camera = camera
     this.scene = scene
     this.key = key
-    this.musicDelay = musicDelay
     this.noteToShow = noteToShow
 
     this.note = {}
@@ -166,8 +165,7 @@ class GameView {
     })
   }
 
-  addMovingNotes(noteInterval, objectSong, currentTime) {
-    let noteMaterial
+  addMovingNotes(objectSong, currentTime) {
     this.startTime = currentTime
     this.objectSong = objectSong
 
@@ -284,21 +282,21 @@ class GameView {
       noteMesh.moveTime - timeEllapseForNote < 500
     ) {
       if (this.key.isDownVisually(this.key.pos[noteMesh.noteIndex + 1])) {
-        console.log(
-          `Note Pressed : Idx: ${noteMesh.noteIndex}  : moveTime : ${
-            noteMesh.moveTime
-          } / timeEllapse : ${timeEllapseForNote}`,
-        )
+        // console.log(
+        //   `Note Pressed : Idx: ${noteMesh.noteIndex}  : moveTime : ${
+        //     noteMesh.moveTime
+        //   } / timeEllapse : ${timeEllapseForNote}`,
+        // )
         noteMesh.pressed = true
         this.gameNotes.incrementHits()
         this.gameNotes.incrementScore()
       }
     } else if (noteMesh.noteFinished && !noteMesh.pressed) {
-      console.error(
-        `Note missed : Idx: ${noteMesh.noteIndex} : moveTime : ${
-          noteMesh.moveTime
-        } / timeEllapse : ${timeEllapseForNote}`,
-      )
+      // console.error(
+      //   `Note missed : Idx: ${noteMesh.noteIndex} : moveTime : ${
+      //     noteMesh.moveTime
+      //   } / timeEllapse : ${timeEllapseForNote}`,
+      // )
       this.gameNotes.resetHits()
     } else {
       // Determine when a note is wrongly typed

@@ -1,32 +1,31 @@
 import * as THREE from '../vendor/three'
-import PointerLockControls from '../vendor/PointerLockControls.js'
-import OrbitControls from '../vendor/OrbitControls.js'
-
+import * as firebase from 'firebase/app'
+import 'firebase/firestore'
 import Key from './key'
-import GameNotes from './game_notes'
 import GameView from './game_view'
 
 // Mix code
 import { AudioPlayer } from '../audio.js'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = true // Default = false; true if you don't want the sound
-//const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`;
+//const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`
 //const fileToPlay = `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`;
 //const fileToPlay = `acdc_-_thunder`;
 //const fileToPlay = `Rage_Against_the_Machine_-_Killing_in_the_Name`;
 //const fileToPlay = `2.5_Bulls_on_Parade_–_Rage_Against_the_Machine`;
 //const fileToPlay = `4.1_Paranoid_–_Black_Sabbath`;
-//const fileToPlay = `5.4_La_Grange_–_ZZ_Top`;
-//const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`;
+//const fileToPlay = `5.4_La_Grange_–_ZZ_Top`
+const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`
 //const fileToPlay = `Queen_-_killer_queen_g_g+s`;
-const fileToPlay = `The_Police_-_Message_in_a_Bottle`
+//const fileToPlay = `The_Police_-_Message_in_a_Bottle`
 
 class Game {
-  constructor() {
-    this.noteInterval = 237.8
-    this.musicDelay = 1980
+  constructor(countDownMode) {
+    this.countDownMode = countDownMode
     this.key = new Key()
     this.started = false
+    this.initFirebase()
+    this.audioPlayer = new AudioPlayer()
 
     this.gameStartEl = document.getElementsByClassName('start')[0]
     this.gameStartListener = window.addEventListener('keypress', this.hitAToStart.bind(this))
@@ -34,15 +33,59 @@ class Game {
     this.createGameView()
   }
 
+  initFirebase() {
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDdTuuIeGVwsb2xNLjfUD88EzqBbk936k0',
+      authDomain: 'devfesthero.firebaseapp.com',
+      databaseURL: 'https://devfesthero.firebaseio.com',
+      projectId: 'devfesthero',
+      appID: 'devfesthero',
+    }
+    firebase.initializeApp(firebaseConfig)
+    this.firestoreDB = firebase.firestore()
+  }
+
   startGame() {
     this.loadMidi().then(objectSong => {
       this.addMusic().then(_ => {
-        const currentTime = Date.now()
-        this.gameView.addMovingNotes(this.noteInterval, objectSong, currentTime)
-        this.gameStartEl.className = 'start hidden'
-        this.started = true
+        this.persistOrGetSongToDataBase(objectSong).then(currentTime => {
+          this.playMusic().then(_ => {
+            console.log(`Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`)
+            const now = Date.now()
+            const timeStart = this.countDownMode ? now : now - (now - currentTime.toMillis())
+            this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
+            this.gameStartEl.className = 'start hidden'
+            this.started = true
+          })
+        })
       })
     })
+  }
+
+  persistOrGetSongToDataBase(objectSong) {
+    // We only save datas of song (time of start) if we're on the countdown screen
+    if (this.countDownMode) {
+      return this.firestoreDB
+        .collection('songs')
+        .doc('currentSong')
+        .update({
+          name: objectSong.title,
+          timeStart: firebase.firestore.FieldValue.serverTimestamp(),
+        })
+        .then(_ =>
+          this.firestoreDB
+            .collection('songs')
+            .doc('currentSong')
+            .get(),
+        )
+        .then(currentSongSnapshot => currentSongSnapshot.data().timeStart)
+    } else {
+      return this.firestoreDB
+        .collection('songs')
+        .doc('currentSong')
+        .get()
+        .then(currentSongSnapshot => currentSongSnapshot.data().timeStart)
+    }
   }
 
   hitAToStart(e) {
@@ -73,18 +116,30 @@ class Game {
     renderer.setSize(width, height)
     document.getElementById('game-canvas').appendChild(renderer.domElement)
 
-    this.gameView = new GameView(renderer, camera, scene, this.key, this.musicDelay, NOTE_TO_SHOW)
+    this.gameView = new GameView(renderer, camera, scene, this.key, NOTE_TO_SHOW)
     this.gameView.setup()
   }
 
+  playMusic() {
+    if (this.countDownMode) {
+      return this.audioPlayer.play(DEBUG_MUTE)
+    } else {
+      return Promise.resolve()
+    }
+  }
+
   addMusic() {
-    const audioPlayer = new AudioPlayer()
-    return audioPlayer.loadAndPlaySong(`./assets/songs/${fileToPlay}`, DEBUG_MUTE)
+    // We only play music if we have the countdown
+    if (this.countDownMode) {
+      return this.audioPlayer.loadSong(`./assets/songs/${fileToPlay}`)
+    } else {
+      return Promise.resolve()
+    }
   }
 
   loadMidi() {
     return new Promise((resolve, reject) => {
-      Midi.fromUrl(`http://localhost:5000/assets/songs/${fileToPlay}/notes.mid`).then(midi => {
+      Midi.fromUrl(`${location.origin}/assets/songs/${fileToPlay}/notes.mid`).then(midi => {
         const objectSong = {
           title: fileToPlay,
           tickArray: [],
