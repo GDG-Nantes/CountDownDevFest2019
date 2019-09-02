@@ -6,6 +6,7 @@ import GameView from './game_view'
 
 // Mix code
 import { AudioPlayer } from '../audio.js'
+import { PLAYLIST, LASTS_SONGS_PLAYLIST} from './playlist'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = true // Default = false; true if you don't want the sound
 //const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`
@@ -15,7 +16,8 @@ const DEBUG_MUTE = true // Default = false; true if you don't want the sound
 //const fileToPlay = `2.5_Bulls_on_Parade_–_Rage_Against_the_Machine`;
 //const fileToPlay = `4.1_Paranoid_–_Black_Sabbath`;
 //const fileToPlay = `5.4_La_Grange_–_ZZ_Top`
-const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`
+//const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`
+const fileToPlay = `00_Aerodynamic`
 //const fileToPlay = `Queen_-_killer_queen_g_g+s`;
 //const fileToPlay = `The_Police_-_Message_in_a_Bottle`
 
@@ -46,11 +48,11 @@ class Game {
   }
 
   startGame() {
-    this.loadMidi().then(objectSong => {
-      this.addMusic().then(_ => {
+    this.loadMidi(fileToPlay).then(objectSong => {
+      this.addMusic(fileToPlay).then(_ => {
         this.persistOrGetSongToDataBase(objectSong).then(currentTime => {
           this.playMusic().then(_ => {
-            console.log(`Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`)
+            console.log(`Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`, objectSong)
             const now = Date.now()
             const timeStart = this.countDownMode ? now : now - (now - currentTime.toMillis())
             this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
@@ -60,6 +62,30 @@ class Game {
         })
       })
     })
+  }
+
+  queryCurrentSongOrTakeFirst(){
+    if (this.countDownMode) {
+      return this.firestoreDB
+        .collection('songs')
+        .doc('currentSong')
+        .get()
+        .then(currentSongSnapshot => {
+          if (currentSongSnapshot.exists){
+            const currentSongInFirebase = currentSongInFirebase.data()
+            return {songToPlay: currentSongInFirebase.songToPlay,
+              index: currentSongInFirebase.index
+            }
+          }else{
+            return {
+              songToPlay : PLAYLIST[0],
+              index: 0
+            }
+          }
+        })
+    }else {
+      return Promise.resolve
+    }
   }
 
   persistOrGetSongToDataBase(objectSong) {
@@ -128,7 +154,7 @@ class Game {
     }
   }
 
-  addMusic() {
+  addMusic(fileToPlay) {
     // We only play music if we have the countdown
     if (this.countDownMode) {
       return this.audioPlayer.loadSong(`./assets/songs/${fileToPlay}`)
@@ -137,7 +163,7 @@ class Game {
     }
   }
 
-  loadMidi() {
+  loadMidi(fileToPlay) {
     return new Promise((resolve, reject) => {
       Midi.fromUrl(`${location.origin}/assets/songs/${fileToPlay}/notes.mid`).then(midi => {
         const objectSong = {
@@ -177,7 +203,8 @@ class Game {
           mapNote[i] = 0
         }
         midi.tracks.forEach(track => {
-          if (track.name === 'PART GUITAR') {
+          if ((track.name === 'PART GUITAR')
+           || (midi.tracks.length === 1)) {
             track.notes.forEach(note => {
               let tickEvent = objectSong.tickMap[note.ticks]
               if (!tickEvent) {
@@ -202,6 +229,7 @@ class Game {
             })
           }
         })
+        console.log('midi object : ',midi)
         console.log(objectSong)
         console.table(mapNote)
         resolve(objectSong)
