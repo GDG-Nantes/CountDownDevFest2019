@@ -72,7 +72,7 @@ export class AudioPlayer {
     )
   }
 
-  play(mute) {
+  play(mute, callbackEndMusic) {
     return new Promise((resolve, reject) => {
       const source = this.context.createBufferSource() // creates a sound source
       const sourceGuitar = this.context.createBufferSource() // creates a sound source
@@ -85,6 +85,7 @@ export class AudioPlayer {
         sourceGuitar.start(0) // play the source now
       }
       this.currentSource = source
+      source.addEventListener('ended', _ => callbackEndMusic(true)) // plug the callback when the song is terminated
       resolve({ source, sourceGuitar })
     })
   }
