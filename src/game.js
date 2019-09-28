@@ -8,18 +8,7 @@ import GameView from './game_view'
 import { AudioPlayer } from '../audio.js'
 import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
 const NOTE_TO_SHOW = 3
-const DEBUG_MUTE = true // Default = false; true if you don't want the sound
-//const fileToPlay = `Guns_'N_Roses_-_Sweet_Child_'O_Mine`
-//const fileToPlay = `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`;
-//const fileToPlay = `acdc_-_thunder`;
-//const fileToPlay = `Rage_Against_the_Machine_-_Killing_in_the_Name`;
-//const fileToPlay = `2.5_Bulls_on_Parade_–_Rage_Against_the_Machine`;
-//const fileToPlay = `4.1_Paranoid_–_Black_Sabbath`;
-//const fileToPlay = `5.4_La_Grange_–_ZZ_Top`
-//const fileToPlay = `3.5_Paint_It,_Black_–_The_Rolling_Stones`
-const fileToPlay = `00_Aerodynamic`
-//const fileToPlay = `Queen_-_killer_queen_g_g+s`;
-//const fileToPlay = `The_Police_-_Message_in_a_Bottle`
+const DEBUG_MUTE = false // Default = false; true if you don't want the sound
 
 class Game {
   constructor(countDownMode) {
@@ -176,7 +165,7 @@ class Game {
         midi => {
           const objectSongCopy = Object.assign(
             {
-              title: objectSong.songToPlay.path,
+              title: objectSong.songToPlay.name,
               tickArray: [],
               tickMap: {},
               notes: {},
