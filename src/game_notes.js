@@ -94,8 +94,8 @@ class GameNotes {
     this.multiplierEl.innerHTML = `Multiplier: ${this.multiplier}X`
   }
 
-  setCountDown(time) {
-    this.countdownEl.innerHTML = '10:00:00'
+  setTime(timeData) {
+    this.countdownEl.innerHTML = `${timeData.minutes}:${timeData.seconds}`
   }
 
   setCurrentSong(currentSonTitle) {

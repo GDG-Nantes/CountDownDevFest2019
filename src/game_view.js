@@ -52,6 +52,10 @@ class GameView {
     this.gameLoop()
   }
 
+  setTime(timeData) {
+    this.gameNotes.setTime(timeData)
+  }
+
   setWindowResizer() {
     let width, height
 

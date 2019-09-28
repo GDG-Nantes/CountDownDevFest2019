@@ -3,12 +3,15 @@ import * as firebase from 'firebase/app'
 import 'firebase/firestore'
 import Key from './key'
 import GameView from './game_view'
+import Timer from './timer'
 
 // Mix code
 import { AudioPlayer } from '../audio.js'
 import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
+const timeBeforeLastSongs = 90 * 1000 // 1 Minute 30
+const dropTimeForLastSong = 5 * 1000 // 5 sec
 
 class Game {
   constructor(countDownMode) {
@@ -16,12 +19,14 @@ class Game {
     this.key = new Key()
     this.started = false
     this.initFirebase()
-    this.audioPlayer = new AudioPlayer()
 
     this.gameStartEl = document.getElementsByClassName('start')[0]
     this.gameStartListener = window.addEventListener('keypress', this.hitAToStart.bind(this))
 
     this.createGameView()
+
+    this.audioPlayer = new AudioPlayer()
+    this.timer = new Timer(this.callbackTimer.bind(this))
   }
 
   initFirebase() {
@@ -138,6 +143,8 @@ class Game {
 
     this.gameView = new GameView(renderer, camera, scene, this.key, NOTE_TO_SHOW)
     this.gameView.setup()
+
+    this.timer
   }
 
   playMusic(callbackEndMusic) {
@@ -235,6 +242,31 @@ class Game {
         },
       )
     })
+  }
+
+  callbackTimer(state) {
+    switch (state.type) {
+      case 'time':
+        this.gameView.setTime(state.value)
+        // If we're in the last song delay, we first drop the sound of current sound before
+        if (
+          state.value.diff < timeBeforeLastSongs &&
+          state.value.diff > timeBeforeLastSongs - dropTimeForLastSong
+        ) {
+          const adjustDiff = state.value.diff - (timeBeforeLastSongs - dropTimeForLastSong)
+          this.audioPlayer.manageVolumeFromPercent(adjustDiff / dropTimeForLastSong)
+        } else if (state.value.diff < timeBeforeLastSongs && !this.switchToLastsSongs) {
+          // TODO Switch to last song !
+          //this.audioPlayer.switchToLastsSongPlaylist();
+          this.switchToLastsSongs = true
+        } else if (this.audioPlayer) {
+          this.audioPlayer.manageSoundVolume(state.value.diff)
+        }
+        break
+      case 'endCountDown':
+        console.log('Times Up !')
+        break
+    }
   }
 }
 

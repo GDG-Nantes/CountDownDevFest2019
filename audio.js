@@ -7,6 +7,10 @@ export class AudioPlayer {
       this.context = new AudioContext()
       this.buffer = undefined
       this.bufferGuitar = undefined
+      this.gainSource = this.context.createGain() // Create gain for source (volume)
+      this.gainSourceGuitar = this.context.createGain() // Create gain for source (volume)
+      this.gainSource.connect(this.context.destination) // Connect gain to audio Context
+      this.gainSourceGuitar.connect(this.context.destination) // Connect gain to audio Context
     } catch (e) {
       console.log('No WebAPI dectect')
     }
@@ -80,6 +84,8 @@ export class AudioPlayer {
       sourceGuitar.buffer = this.bufferGuitar // tell the source which sound to play
       source.connect(this.context.destination) // connect the source to the context's destination (the speakers)
       sourceGuitar.connect(this.context.destination) // connect the source to the context's destination (the speakers)
+      source.connect(this.gainSource)
+      sourceGuitar.connect(this.gainSourceGuitar)
       if (!mute) {
         source.start(0) // play the source now
         sourceGuitar.start(0) // play the source now
@@ -98,5 +104,22 @@ export class AudioPlayer {
 
   time() {
     return this.context.currentTime
+  }
+
+  /**
+   * Update the sound volume of audio element
+   */
+  manageSoundVolume(delta) {
+    if (delta < 10 * 1000) {
+      this.gainSource = Math.min(Math.max(0, delta / (10 * 1000)), 0.7)
+      this.gainSourceGuitar = Math.min(Math.max(0, delta / (10 * 1000)), 0.7)
+    }
+  }
+
+  manageVolumeFromPercent(percent) {
+    if (percent > 0) {
+      this.gainSource = Math.min(percent, 1)
+      this.gainSourceGuitar = Math.min(percent, 1)
+    }
   }
 }
