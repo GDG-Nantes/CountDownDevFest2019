@@ -159,7 +159,7 @@ class Game {
     // We only play music if we have the countdown
     if (this.countDownMode) {
       return this.audioPlayer
-        .loadSong(`./assets/songs/${objectSong.songToPlay.path}`)
+        .loadSong(`./assets/songs/${objectSong.songToPlay.path}`, objectSong.songToPlay.song)
         .then(_ => objectSong)
     } else {
       return Promise.resolve(objectSong)
@@ -210,7 +210,11 @@ class Game {
             mapNote[i] = 0
           }
           midi.tracks.forEach(track => {
-            if (track.name === 'PART GUITAR' || midi.tracks.length === 1) {
+            if (
+              track.name === 'PART GUITAR' ||
+              track.name === 'T1 GEMS' ||
+              midi.tracks.length === 1
+            ) {
               track.notes.forEach(note => {
                 let tickEvent = objectSongCopy.tickMap[note.ticks]
                 if (!tickEvent) {

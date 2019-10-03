@@ -72,28 +72,44 @@ export class AudioPlayer {
    ******************************
    */
 
-  loadSong(songPath) {
-    return this._loadSound(`${songPath}/song.ogg`).then(_ =>
-      this._loadSoundGuitar(`${songPath}/guitar.ogg`),
-    )
+  loadSong(songPath, song) {
+    return this._loadSound(`${songPath}/${song.song}`).then(_ => {
+      if (song.guitar) {
+        return this._loadSoundGuitar(`${songPath}/${song.guitar}`)
+      } else {
+        this.bufferGuitar = undefined
+        return
+      }
+    })
   }
 
   play(mute, callbackEndMusic) {
     return new Promise((resolve, reject) => {
       const source = this.context.createBufferSource() // creates a sound source
-      const sourceGuitar = this.context.createBufferSource() // creates a sound source
+      let sourceGuitar = undefined // creates a sound source
+      if (this.bufferGuitar) {
+        sourceGuitar = this.context.createBufferSource()
+      } // creates a sound source
       source.buffer = this.buffer // tell the source which sound to play
-      sourceGuitar.buffer = this.bufferGuitar // tell the source which sound to play
+      if (this.bufferGuitar) {
+        sourceGuitar.buffer = this.bufferGuitar
+      } // tell the source which sound to play
       //source.connect(this.context.destination) // connect the source to the context's destination (the speakers)
       //sourceGuitar.connect(this.context.destination) // connect the source to the context's destination (the speakers)
       source.connect(this.gainSource)
-      sourceGuitar.connect(this.gainSourceGuitar)
+      if (this.bufferGuitar) {
+        sourceGuitar.connect(this.gainSourceGuitar)
+      }
       if (!mute) {
         source.start(0) // play the source now
-        sourceGuitar.start(0) // play the source now
+        if (this.bufferGuitar) {
+          sourceGuitar.start(0) // play the source now
+        }
       }
       this.currentSource = source
-      this.currentSourceGuitar = sourceGuitar
+      if (this.bufferGuitar) {
+        this.currentSourceGuitar = sourceGuitar
+      }
       source.addEventListener('ended', _ => callbackEndMusic(true)) // plug the callback when the song is terminated
       resolve({ source, sourceGuitar })
     })
@@ -102,7 +118,9 @@ export class AudioPlayer {
   stop() {
     if (this.currentSource && this.currentSource.stop) {
       this.currentSource.stop(0)
-      this.currentSourceGuitar.stop(0)
+      if (this.bufferGuitar) {
+        this.currentSourceGuitar.stop(0)
+      }
     }
   }
 
@@ -116,14 +134,18 @@ export class AudioPlayer {
   manageSoundVolume(delta) {
     if (delta < 10 * 1000) {
       this.gainSource.gain.value = Math.min(Math.max(0, delta / (10 * 1000)), 0.7)
-      this.gainSourceGuitar.gain.value = Math.min(Math.max(0, delta / (10 * 1000)), 0.7)
+      if (this.bufferGuitar) {
+        this.gainSourceGuitar.gain.value = Math.min(Math.max(0, delta / (10 * 1000)), 0.7)
+      }
     }
   }
 
   manageVolumeFromPercent(percent) {
     if (percent > 0) {
       this.gainSource.gain.value = Math.min(percent, 1)
-      this.gainSourceGuitar.gain.value = Math.min(percent, 1)
+      if (this.bufferGuitar) {
+        this.gainSourceGuitar.gain.value = Math.min(percent, 1)
+      }
     }
   }
 }
