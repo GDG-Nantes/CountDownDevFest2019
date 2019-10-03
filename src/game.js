@@ -265,6 +265,15 @@ class Game {
         break
       case 'endCountDown':
         console.log('Times Up !')
+        // Stop Music
+        this.audioPlayer.stop()
+        const opacityElt = document.getElementById('opacity')
+        opacityElt.style.display = ''
+        setTimeout(() => {
+          opacityElt.classList.add('black')
+          // TODO PLAY VIDEO
+          //setTimeout(() => this.videoPlayer.playVideo(), 4000);
+        }, 100)
         break
     }
   }
