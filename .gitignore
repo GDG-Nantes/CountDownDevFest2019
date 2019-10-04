@@ -62,4 +62,10 @@ typings/
 
 dist/
 
+bundle.js
+
+sauv_assets
+
 assets/songs
+
+.DS_Store
