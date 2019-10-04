@@ -2,6 +2,15 @@
 
 export const PLAYLIST = [
   {
+    path: `Aerodynamic`,
+    name: 'Daft Punk - Aerodynamic',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'Song.ogg',
+      guitar: 'Guitar.ogg',
+    },
+  },
+  {
     path: `A_Kind_Of_Magic`,
     name: 'Queen - A Kind Of Magic',
     difficulty: 'AMAZING_DIFFICULTY',
