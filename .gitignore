@@ -64,6 +64,8 @@ dist/
 
 bundle.js
 
+bundle.js.map
+
 sauv_assets
 
 assets/songs
@@ -71,3 +73,5 @@ assets/songs
 .DS_Store
 
 .firebase
+
+assets/video/Motion_DevFest_v2.mp4
