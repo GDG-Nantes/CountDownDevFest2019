@@ -2,28 +2,123 @@
 
 export const PLAYLIST = [
   {
-    path: `wewillrockyou`,
-    name: 'Queen - We will rock you -- PB',
-    difficulty: 'EASY_DIFFICULTY',
+    path: `A_Kind_Of_Magic`,
+    name: 'Queen - A Kind Of Magic',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'Song.ogg',
+      guitar: 'Guitar.ogg',
+    },
+  },
+  {
+    path: `giveitaway`,
+    name: 'Red Hor Chilli Peppers - Give it away',
+    difficulty: 'AMAZING_DIFFICULTY',
     song: {
       song: 'guitar.ogg',
     },
   },
   {
-    path: `wearethechampions`,
-    name: 'Queen - We are the champions -- PB',
-    difficulty: 'EASY_DIFFICULTY',
+    path: `blackbetty`,
+    name: 'Ram Jam - Blackbetty',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `Money_for_Nothing`,
+    name: 'Dire staits - Money for nothing',
+    difficulty: 'AMAZING_DIFFICULTY',
     song: {
       song: 'guitar.ogg',
+    },
+  },
+  {
+    path: `Dire_Straits_-_Money_for_Nothing`,
+    name: 'Dire staits - Money for nothing',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'guitar.ogg',
+    },
+  },
+  {
+    path: `mich_-_beat`,
+    name: 'Michael Jackson - Beat it',
+    difficulty: 'MEDIUM_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `queen_-_bohemian`,
+    name: 'Queen - Bohemian Rapsody',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `smellsliketeen`,
+    name: 'Nirvana - Smells like teen Spirit',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `starlight`,
+    name: 'Muse - Starlight',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `Sunday_Bloody_Sunday`,
+    name: 'U2 - Sunday Bloody Sunday',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'guitar.ogg',
+    },
+  },
+  {
+    path: `sweethomealabama`,
+    name: 'Lynyrd Skynyrd - Sweet home alabama',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
     },
   },
   {
     path: `U2_-_One`,
-    name: 'U2 - One -- PB',
-    difficulty: 'EASY_DIFFICULTY',
+    name: 'U2 - One',
+    difficulty: 'AMAZING_DIFFICULTY',
     song: {
       song: 'song.ogg',
       guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `wearethechampions`,
+    name: 'Queen - We are the champions',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'guitar.ogg',
+    },
+  },
+  {
+    path: `wewillrockyou`,
+    name: 'Queen - We will rock you',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'guitar.ogg',
     },
   },
   {
@@ -37,33 +132,7 @@ export const PLAYLIST = [
   },
   {
     path: `takemeout`,
-    name: '??? - Take me out',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `sweethomealabama`,
-    name: '??? - Sweet home alabama -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `Sunday_Bloody_Sunday`,
-    name: 'U2 - Sunday Bloody Sunday -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
-    },
-  },
-  {
-    path: `starlight`,
-    name: 'Muse - Starlight -- PB',
+    name: 'Franz Ferdinand - Take me out',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -80,55 +149,12 @@ export const PLAYLIST = [
     },
   },
   {
-    path: `smellsliketeen`,
-    name: 'Nirvana - Smells like teen -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
     path: `Rage_Against_the_Machine_-_Killing_in_the_Name`,
     name: 'Rage Against the Machine - Killing in the Name',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
       guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `queen_-_bohemian`,
-    name: 'Queen - Bohemian Rapsody -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `mich_-_beat`,
-    name: 'Michael Jackson - Beat it -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `Dire_Straits_-_Money_for_Nothing`,
-    name: 'Dire staits - Money for nothing -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
-    },
-  },
-  {
-    path: `Money_for_Nothing`,
-    name: 'Dire staits - Money for nothing -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
     },
   },
   {
@@ -150,16 +176,8 @@ export const PLAYLIST = [
     },
   },
   {
-    path: `giveitaway`,
-    name: 'Red Hor Chilli Peppers - Give it away -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
-    },
-  },
-  {
     path: `iloverockandroll`,
-    name: '??? - I Love Rock And Roll',
+    name: 'Joan Jett - I Love Rock And Roll',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -194,15 +212,6 @@ export const PLAYLIST = [
     },
   },
   {
-    path: `blackbetty`,
-    name: '??? - Blackbetty -- PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
     path: `aroundtheworld`,
     name: 'Red Hor Chilli Peppers - Around the world',
     difficulty: 'EASY_DIFFICULTY',
@@ -228,15 +237,6 @@ export const PLAYLIST = [
     },
   },
   {
-    path: `A_Kind_Of_Magic`,
-    name: 'Queen - A Kind Of Magic - PB',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'Song.ogg',
-      guitar: 'Guitar.ogg',
-    },
-  },
-  {
     path: `7.4_Knights_of_Cydonia_-_ Muse`,
     name: 'Muse - Knights of Cydonia',
     difficulty: 'EASY_DIFFICULTY',
@@ -256,7 +256,7 @@ export const PLAYLIST = [
   },
   {
     path: `4.5_Even_Flow_-_Pearl_Jam`,
-    name: 'Peal Jam - Even Flow',
+    name: 'Pearl Jam - Even Flow',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',

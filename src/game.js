@@ -230,7 +230,7 @@ class Game {
                 const noteCorrespondance = noteMap[note.midi]
                 if (
                   noteCorrespondance &&
-                  noteCorrespondance.difficulty === 'EASY_DIFFICULTY' &&
+                  noteCorrespondance.difficulty === objectSong.songToPlay.difficulty &&
                   noteCorrespondance.note < NOTE_TO_SHOW
                 ) {
                   tickEvent.tracks.push(`${noteCorrespondance.note + 1}`)
