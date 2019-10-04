@@ -7,7 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start-webpack": "webpack --watch",
     "start": "npm run start-webpack & npx serve",
-    "postinstall": "webpack"
+    "postinstall": "webpack",
+    "firebase": "firebase",
+    "clean": "del-cli dist/*",
+    "cp-core": "cpx \"index.html\" \"dist\" && cpx \"vendor/*.js\" \"dist/vendor\" && cpx \"bundle.js\" \"dist\" ",
+    "cp-assets": "cpx \"assets/**/*.{ogg,mid,midi}\" \"dist/assets\" && cpx \"css/*\" \"dist/css\" && cpx \"photos/*\" \"dist/photos\" ",
+    "build": "npm run clean && webpack && npm run cp-core && npm run cp-assets",
+    "deploy": "npm run build && firebase deploy --only hosting"
   },
   "keywords": [],
   "author": "",
@@ -18,7 +24,10 @@
     "babel-loader": "^7.1.2",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
+    "cpx": "^1.5.0",
+    "del-cli": "^3.0.0",
     "firebase": "^6.3.3",
+    "firebase-tools": "^7.4.0",
     "midi-player-js": "^2.0.5",
     "webpack": "^3.8.1"
   }
