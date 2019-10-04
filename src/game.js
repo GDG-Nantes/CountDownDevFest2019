@@ -7,6 +7,7 @@ import Timer from './timer'
 
 // Mix code
 import { AudioPlayer } from '../audio.js'
+import { VideoPlayer } from './video_player'
 import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
@@ -27,6 +28,13 @@ class Game {
 
     this.audioPlayer = new AudioPlayer()
     this.timer = new Timer(this.callbackTimer.bind(this))
+    const opacityElt = document.getElementById('opacity')
+    this.videoPlayer = new VideoPlayer(opacityElt, () => {
+      // console.debug('end');
+      setTimeout(() => {
+        // TODO (SHOW FINAL IMAGE)
+      }, 5000)
+    })
   }
 
   initFirebase() {
@@ -271,12 +279,12 @@ class Game {
         console.log('Times Up !')
         // Stop Music
         this.audioPlayer.stop()
+        this.videoPlayer.resetVideo()
         const opacityElt = document.getElementById('opacity')
         opacityElt.style.display = ''
         setTimeout(() => {
           opacityElt.classList.add('black')
-          // TODO PLAY VIDEO
-          //setTimeout(() => this.videoPlayer.playVideo(), 4000);
+          setTimeout(() => this.videoPlayer.playVideo(), 4000)
         }, 100)
         break
     }
