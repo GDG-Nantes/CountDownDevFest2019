@@ -69,3 +69,5 @@ sauv_assets
 assets/songs
 
 .DS_Store
+
+.firebase
