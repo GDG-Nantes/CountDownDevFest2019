@@ -2,6 +2,7 @@ import * as THREE from '../vendor/three'
 import * as firebase from 'firebase/app'
 import 'firebase/firestore'
 import Key from './key'
+import Touch from './touch'
 import GameView from './game_view'
 import Timer from './timer'
 
@@ -18,6 +19,7 @@ class Game {
   constructor(countDownMode) {
     this.countDownMode = countDownMode
     this.key = new Key()
+    this.touch = new Touch()
     this.started = false
     this.initFirebase()
 
@@ -149,7 +151,7 @@ class Game {
     renderer.setSize(width, height)
     document.getElementById('game-canvas').appendChild(renderer.domElement)
 
-    this.gameView = new GameView(renderer, camera, scene, this.key, NOTE_TO_SHOW)
+    this.gameView = new GameView(renderer, camera, scene, this.key, this.touch, NOTE_TO_SHOW)
     this.gameView.setup()
 
     this.timer

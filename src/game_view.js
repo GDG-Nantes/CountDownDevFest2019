@@ -4,11 +4,12 @@ import GameNotes from './game_notes'
 import { throws } from 'assert'
 
 class GameView {
-  constructor(renderer, camera, scene, key, noteToShow) {
+  constructor(renderer, camera, scene, key, touch, noteToShow) {
     this.renderer = renderer
     this.camera = camera
     this.scene = scene
     this.key = key
+    this.touch = touch
     this.noteToShow = noteToShow
 
     this.note = {}
@@ -158,7 +159,10 @@ class GameView {
 
       // LIGHT UP CIRCLE WHEN KEY IS PRESSED
       setInterval(() => {
-        if (this.key.isDownVisually(this.key.pos[idx + 1])) {
+        if (
+          this.key.isDownVisually(this.key.pos[idx + 1]) ||
+          this.touch.isDownVisually(this.touch.pos[idx + 1])
+        ) {
           circle.material = this.note.materials[3]
         } else {
           circle.material = this.note.materials[idx]
@@ -286,7 +290,10 @@ class GameView {
       !noteMesh.pressed &&
       noteMesh.moveTime - timeEllapseForNote < 500
     ) {
-      if (this.key.isDownVisually(this.key.pos[noteMesh.noteIndex + 1])) {
+      if (
+        this.key.isDownVisually(this.key.pos[noteMesh.noteIndex + 1]) ||
+        this.touch.isDownVisually(this.touch.pos[noteMesh.noteIndex + 1])
+      ) {
         // console.log(
         //   `Note Pressed : Idx: ${noteMesh.noteIndex}  : moveTime : ${
         //     noteMesh.moveTime
