@@ -127,7 +127,26 @@ class Game {
     if (!this.started) {
       if (e.keyCode === 97 || e.keyCode === 65) {
         this.startGame()
+        this.listenToChange()
       }
+    }
+  }
+
+  listenToChange() {
+    if (!this.countDownMode) {
+      // If we're not on countdown mode, we have to listen to change of songs
+      this.firestoreDB
+        .collection('songs')
+        .doc('currentSong')
+        .onSnapshot({ includeMetadataChanges: true }, currentSongSnapshot => {
+          const dataWrite = currentSongSnapshot.data()
+          if (!dataWrite) {
+            // nothing to do here
+            return
+          } else {
+            this.startGame()
+          }
+        })
     }
   }
 

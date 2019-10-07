@@ -2,6 +2,15 @@
 
 export const PLAYLIST = [
   {
+    path: `sweethomealabama`,
+    name: 'Lynyrd Skynyrd - Sweet home alabama',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
     path: `Aerodynamic`,
     name: 'Daft Punk - Aerodynamic',
     difficulty: 'EASY_DIFFICULTY',
@@ -94,15 +103,6 @@ export const PLAYLIST = [
     difficulty: 'AMAZING_DIFFICULTY',
     song: {
       song: 'guitar.ogg',
-    },
-  },
-  {
-    path: `sweethomealabama`,
-    name: 'Lynyrd Skynyrd - Sweet home alabama',
-    difficulty: 'AMAZING_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
     },
   },
   {

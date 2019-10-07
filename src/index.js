@@ -13,5 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   closeInstructionElt.addEventListener('click', _ => {
     instructionElt.style.display = 'none'
     game.startGame()
+    game.listenToChange()
   })
 })
