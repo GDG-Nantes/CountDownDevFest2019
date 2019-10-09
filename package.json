@@ -27,8 +27,10 @@
     "cpx": "^1.5.0",
     "del-cli": "^3.0.0",
     "firebase": "^6.3.3",
+    "firebase-functions": "^3.2.0",
     "firebase-tools": "^7.4.0",
     "midi-player-js": "^2.0.5",
+    "timesync": "^1.0.3",
     "webpack": "^3.8.1"
   }
 }

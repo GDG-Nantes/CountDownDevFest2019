@@ -1,0 +1,25 @@
+{
+  "name": "countDownDevFest2019",
+  "version": "1.0.0",
+  "description": "",
+  "main": "serverTime.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "8"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "firebase": "^6.3.3",
+    "firebase-admin": "8.3.0",
+    "firebase-functions": "^3.2.0",
+    "firebase-tools": "^7.4.0",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.1",
+    "express": "^4.14.1",
+    "timesync": "^1.0.3"
+  }
+}
