@@ -23,6 +23,12 @@ class Game {
     this.started = false
     this.initFirebase()
 
+    this.timeSync = timesync.create({
+      server: 'https://us-central1-devfesthero.cloudfunctions.net/app/whatTime',
+      interval: null,
+    })
+    this.timeSyncDone = false
+
     this.gameStartEl = document.getElementsByClassName('start')[0]
     this.gameStartListener = window.addEventListener('keypress', this.hitAToStart.bind(this))
 
@@ -51,19 +57,47 @@ class Game {
     this.firestoreDB = firebase.firestore()
   }
 
+  performTimeSync(objectSong) {
+    return Promise.race([
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(objectSong)
+        }, 5000)
+      }),
+      new Promise((resolve, reject) => {
+        this.timeSync.on('sync', state => {
+          if (state === 'end') {
+            this.timeSync.off('sync')
+            this.timeSyncDone = true
+            resolve(objectSong)
+          }
+        })
+        this.timeSyncDone = false
+        this.timeSync.sync()
+      }),
+    ])
+  }
+
   startGame(nextSong) {
     this.queryCurrentSongOrTakeFirst(nextSong)
       .then(objectSong => this.loadMidi(objectSong))
       .then(objectSong => this.addMusic(objectSong))
+      .then(objectSong => this.performTimeSync(objectSong))
       .then(objectSong => {
-        this.persistOrGetSongToDataBase(objectSong).then(currentTime => {
+        //const nowBeforeSync = Date.now()
+        this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
           this.playMusic(this.startGame.bind(this)).then(_ => {
-            console.log(
-              `Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`,
-              objectSong,
-            )
             const now = Date.now()
-            const timeStart = this.countDownMode ? now : now - (now - currentTime.toMillis())
+            const nowNTP = new Date(this.timeSync.now())
+            if (this.countDownMode) {
+              this.firestoreDB
+                .collection('songs')
+                .doc('currentSong')
+                .update({
+                  startCountDown: nowNTP.getTime(),
+                })
+            }
+            const timeStart = this.countDownMode ? now : now - (nowNTP.getTime() - startCountDown)
             this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
             this.gameStartEl.className = 'start hidden'
             this.started = true
@@ -113,13 +147,13 @@ class Game {
             .doc('currentSong')
             .get(),
         )
-        .then(currentSongSnapshot => currentSongSnapshot.data().timeStart)
+        .then(currentSongSnapshot => currentSongSnapshot.data())
     } else {
       return this.firestoreDB
         .collection('songs')
         .doc('currentSong')
         .get()
-        .then(currentSongSnapshot => currentSongSnapshot.data().timeStart)
+        .then(currentSongSnapshot => currentSongSnapshot.data())
     }
   }
 
@@ -138,15 +172,20 @@ class Game {
       this.firestoreDB
         .collection('songs')
         .doc('currentSong')
-        .onSnapshot({ includeMetadataChanges: true }, currentSongSnapshot => {
-          const dataWrite = currentSongSnapshot.data()
-          if (!dataWrite) {
-            // nothing to do here
-            return
-          } else {
-            this.startGame()
-          }
-        })
+        .onSnapshot(
+          {
+            includeMetadataChanges: true,
+          },
+          currentSongSnapshot => {
+            const dataWrite = currentSongSnapshot.data()
+            if (!dataWrite || !dataWrite.startCountDown) {
+              // nothing to do here
+              return
+            } else {
+              this.startGame()
+            }
+          },
+        )
     }
   }
 
@@ -212,26 +251,86 @@ class Game {
 
           const noteMap = {
             //
-            96: { difficulty: 'AMAZING_DIFFICULTY', note: 0 }, // 0x60
-            97: { difficulty: 'AMAZING_DIFFICULTY', note: 1 }, // 0x61
-            98: { difficulty: 'AMAZING_DIFFICULTY', note: 2 }, // 0x62
-            99: { difficulty: 'AMAZING_DIFFICULTY', note: 3 }, // 0x63
-            100: { difficulty: 'AMAZING_DIFFICULTY', note: 4 }, // 0x64
-            84: { difficulty: 'MEDIUM_DIFFICULTY', note: 0 }, // 0x54
-            85: { difficulty: 'MEDIUM_DIFFICULTY', note: 1 }, // 0x55
-            86: { difficulty: 'MEDIUM_DIFFICULTY', note: 2 }, // 0x56
-            87: { difficulty: 'MEDIUM_DIFFICULTY', note: 3 }, // 0x57
-            88: { difficulty: 'MEDIUM_DIFFICULTY', note: 4 }, // 0x58
-            72: { difficulty: 'EASY_DIFFICULTY', note: 0 }, // 0x48
-            73: { difficulty: 'EASY_DIFFICULTY', note: 1 }, // 0x49
-            74: { difficulty: 'EASY_DIFFICULTY', note: 2 }, // 0x4a
-            75: { difficulty: 'EASY_DIFFICULTY', note: 3 }, // 0x4b
-            76: { difficulty: 'EASY_DIFFICULTY', note: 4 }, // 0x4c
-            60: { difficulty: 'SUPAEASY_DIFFICULTY', note: 0 }, // 0x3c
-            61: { difficulty: 'SUPAEASY_DIFFICULTY', note: 1 }, // 0x3d
-            62: { difficulty: 'SUPAEASY_DIFFICULTY', note: 2 }, // 0x3e
-            63: { difficulty: 'SUPAEASY_DIFFICULTY', note: 3 }, // 0x3f
-            64: { difficulty: 'SUPAEASY_DIFFICULTY', note: 4 }, // 0x40
+            96: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 0,
+            }, // 0x60
+            97: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 1,
+            }, // 0x61
+            98: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 2,
+            }, // 0x62
+            99: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 3,
+            }, // 0x63
+            100: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 4,
+            }, // 0x64
+            84: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 0,
+            }, // 0x54
+            85: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 1,
+            }, // 0x55
+            86: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 2,
+            }, // 0x56
+            87: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 3,
+            }, // 0x57
+            88: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 4,
+            }, // 0x58
+            72: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 0,
+            }, // 0x48
+            73: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 1,
+            }, // 0x49
+            74: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 2,
+            }, // 0x4a
+            75: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 3,
+            }, // 0x4b
+            76: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 4,
+            }, // 0x4c
+            60: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 0,
+            }, // 0x3c
+            61: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 1,
+            }, // 0x3d
+            62: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 2,
+            }, // 0x3e
+            63: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 3,
+            }, // 0x3f
+            64: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 4,
+            }, // 0x40
           }
 
           const mapNote = {}
