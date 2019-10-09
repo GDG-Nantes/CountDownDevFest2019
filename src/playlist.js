@@ -1,6 +1,7 @@
 'use strict'
 
-export const PLAYLIST = [{
+export const PLAYLIST = [
+  {
     path: `5.4_La_Grange_–_ZZ_Top`,
     name: 'La Grange – ZZ Top',
     difficulty: 'EASY_DIFFICULTY',
@@ -12,15 +13,6 @@ export const PLAYLIST = [{
   {
     path: `3.5_Paint_It,_Black_–_The_Rolling_Stones`,
     name: 'Paint It, Black – The Rolling Stones',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `00_Aerodynamic`,
-    name: 'Aerodynamic - Daft Punk',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -345,7 +337,7 @@ export const PLAYLIST = [{
   {
     path: `acdc_-_thunder`,
     name: 'ACDC - Thunderstruck',
-    difficulty: 'EASY_DIFFICULTY'
+    difficulty: 'EASY_DIFFICULTY',
   },
   {
     path: `Rage_Against_the_Machine_-_Killing_in_the_Name`,
@@ -374,15 +366,16 @@ export const PLAYLIST = [{
       guitar: 'guitar.ogg',
     },
   },
-
 ]
 
-export const LASTS_SONGS_PLAYLIST = [{
-  path: '00__ACDC_-_Thunderstruck',
-  name: 'ACDC - Thunderstruck',
-  difficulty: 'EASY_DIFFICULTY',
-  song: {
-    song: 'song.ogg',
-    guitar: 'guitar.ogg',
+export const LASTS_SONGS_PLAYLIST = [
+  {
+    path: '00__ACDC_-_Thunderstruck',
+    name: 'ACDC - Thunderstruck',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
   },
-}, ]
+]
