@@ -51,24 +51,84 @@ class Game {
     this.firestoreDB = firebase.firestore()
   }
 
+  calcDeltaWithServer() {
+    if (this.countDownMode) {
+      return Promise.resolve(0)
+    } else {
+      const nowBeforeCall = Date.now()
+      return this.firestoreDB
+        .collection('deltaServer')
+        .add({ timeRef: firebase.firestore.FieldValue.serverTimestamp() })
+        .then(doc =>
+          this.firestoreDB
+            .collection('deltaServer')
+            .doc(doc.id)
+            .get(),
+        )
+        .then(doc => {
+          const now = Date.now()
+          const delta = now - nowBeforeCall
+          const timeServerRef = doc.data().timeRef.toMillis()
+          // TODO REMOVE DOC FROM FIREBASE
+          return { deltaFromServer: delta, timeServerRef }
+          // document.querySelector(
+          //   '.game-details-left',
+          // ).innerHTML = `timeServerRef = ${timeServerRef}<br>
+          // nowBeforeCall : ${nowBeforeCall}<br>
+          // deltaCall : ${delta}<br>
+          // delta : ${timeServerRef - nowBeforeCall - delta}`
+        })
+    }
+  }
+
   startGame(nextSong) {
     this.queryCurrentSongOrTakeFirst(nextSong)
       .then(objectSong => this.loadMidi(objectSong))
       .then(objectSong => this.addMusic(objectSong))
       .then(objectSong => {
-        this.persistOrGetSongToDataBase(objectSong).then(currentTime => {
-          this.playMusic(this.startGame.bind(this)).then(_ => {
-            console.log(
-              `Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`,
-              objectSong,
-            )
-            const now = Date.now()
-            const timeStart = this.countDownMode ? now : now - (now - currentTime.toMillis())
-            this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-            this.gameStartEl.className = 'start hidden'
-            this.started = true
-          })
-        })
+        const nowBeforeSync = Date.now()
+        this.persistOrGetSongToDataBase(objectSong).then(
+          ({ timeStart: currentTime, deltaCall, startCountDown }) => {
+            this.playMusic(this.startGame.bind(this)).then(_ => {
+              console.log(
+                `Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`,
+                objectSong,
+              )
+              const now = Date.now()
+              if (this.countDownMode) {
+                this.firestoreDB
+                  .collection('songs')
+                  .doc('currentSong')
+                  .update({ deltaCall: now - currentTime.toMillis(), startCountDown: now })
+              }
+              this.calcDeltaWithServer().then(({ deltaFromServer, timeServerRef }) => {
+                let deltaToApply = 0
+                if (this.countDownMode) {
+                  //Delta between hour of server for client and hour of server when start the song
+                  const deltaServerClientWithServerCD = currentTime.toMillis() - timeServerRef
+
+                  const deltaCountDown = deltaCall
+                  const hourInServerOfStartForCD = startCountDown - deltaCountDown
+                  const hourInServerOfStartForClient =
+                    hourInServerOfStartForCD + deltaServerClientWithServerCD
+                }
+
+                const timeStart = this.countDownMode ? now : now - (now - currentTime.toMillis())
+                //const timeStart = this.countDownMode ? now : now - deltaCall
+                // document.querySelector('.game-details-left').innerHTML = `
+                // delta serveur / countdown : ${deltaCall}<br>
+                // now : ${now}<br>
+                // timeServeur : ${currentTime.toMillis()}<br>
+                // nowBeforeCall : ${nowBeforeSync}<br>
+                // `
+                console.log(`Delta Of Sync : ${deltaCall}`)
+                this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
+                this.gameStartEl.className = 'start hidden'
+                this.started = true
+              })
+            })
+          },
+        )
       })
   }
 
@@ -113,13 +173,13 @@ class Game {
             .doc('currentSong')
             .get(),
         )
-        .then(currentSongSnapshot => currentSongSnapshot.data().timeStart)
+        .then(currentSongSnapshot => currentSongSnapshot.data())
     } else {
       return this.firestoreDB
         .collection('songs')
         .doc('currentSong')
         .get()
-        .then(currentSongSnapshot => currentSongSnapshot.data().timeStart)
+        .then(currentSongSnapshot => currentSongSnapshot.data())
     }
   }
 
@@ -140,7 +200,7 @@ class Game {
         .doc('currentSong')
         .onSnapshot({ includeMetadataChanges: true }, currentSongSnapshot => {
           const dataWrite = currentSongSnapshot.data()
-          if (!dataWrite) {
+          if (!dataWrite || !dataWrite.deltaCall) {
             // nothing to do here
             return
           } else {
