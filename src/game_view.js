@@ -173,11 +173,15 @@ class GameView {
     })
   }
 
+  setCurrentSong(objectSong, loading) {
+    this.gameNotes.setCurrentSong(objectSong.songToPlay.name + (loading ? '  loading...' : ''))
+    return undefined
+  }
+
   addMovingNotes(objectSong, currentTime) {
     this.startTime = currentTime
     this.objectSong = objectSong
     this.gameNotes.setCurrentSong(objectSong.title)
-
     this.tempoDelay = this.calculateTempoDelay(objectSong.bpm)
     console.log(`Delay of notes : ${this.tempoDelay}`)
   }

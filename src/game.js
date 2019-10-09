@@ -10,6 +10,7 @@ import Timer from './timer'
 import { AudioPlayer } from '../audio.js'
 import { VideoPlayer } from './video_player'
 import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
+import undefined from 'firebase/firestore'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
 const timeBeforeLastSongs = 90 * 1000 // 1 Minute 30
@@ -28,6 +29,7 @@ class Game {
       interval: null,
     })
     this.timeSyncDone = false
+    this.objectSongComplete = undefined
 
     this.gameStartEl = document.getElementsByClassName('start')[0]
     this.gameStartListener = window.addEventListener('keypress', this.hitAToStart.bind(this))
@@ -78,32 +80,43 @@ class Game {
     ])
   }
 
+  loadSong(objectSong) {
+    return (
+      this.gameView.setCurrentSong(objectSong, true) ||
+      this.loadMidi(objectSong)
+        .then(objectSong => this.addMusic(objectSong))
+        .then(objectSong => this.performTimeSync(objectSong))
+    )
+  }
+
+  playSongAndDisplayNote(objectSong) {
+    this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
+      const timeOut = this.countDownMode ? 5000 : 0
+      setTimeout(() => {
+        this.playMusic(this.startGame.bind(this)).then(_ => {
+          const now = Date.now()
+          const nowNTP = new Date(this.timeSync.now())
+          if (this.countDownMode) {
+            this.firestoreDB
+              .collection('songs')
+              .doc('currentSong')
+              .update({
+                startCountDown: nowNTP.getTime(),
+              })
+          }
+          const timeStart = this.countDownMode ? now : now - (nowNTP.getTime() - startCountDown)
+          this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
+          this.gameStartEl.className = 'start hidden'
+          this.started = true
+        })
+      }, timeOut)
+    })
+  }
+
   startGame(nextSong) {
     this.queryCurrentSongOrTakeFirst(nextSong)
-      .then(objectSong => this.loadMidi(objectSong))
-      .then(objectSong => this.addMusic(objectSong))
-      .then(objectSong => this.performTimeSync(objectSong))
-      .then(objectSong => {
-        //const nowBeforeSync = Date.now()
-        this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
-          this.playMusic(this.startGame.bind(this)).then(_ => {
-            const now = Date.now()
-            const nowNTP = new Date(this.timeSync.now())
-            if (this.countDownMode) {
-              this.firestoreDB
-                .collection('songs')
-                .doc('currentSong')
-                .update({
-                  startCountDown: nowNTP.getTime(),
-                })
-            }
-            const timeStart = this.countDownMode ? now : now - (nowNTP.getTime() - startCountDown)
-            this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-            this.gameStartEl.className = 'start hidden'
-            this.started = true
-          })
-        })
-      })
+      .then(objectSong => this.loadSong(objectSong))
+      .then(objectSong => this.playSongAndDisplayNote(objectSong))
   }
 
   queryCurrentSongOrTakeFirst(nextSong) {
@@ -178,12 +191,17 @@ class Game {
           },
           currentSongSnapshot => {
             const dataWrite = currentSongSnapshot.data()
-            if (!dataWrite || !dataWrite.startCountDown) {
+            if (!dataWrite) {
+              return
+            }
+            this.gameView.setCurrentSong(dataWrite, true)
+            if (!dataWrite.startCountDown) {
+              this.loadSong(dataWrite).then(objectSong => (this.objectSongComplete = objectSong))
               // nothing to do here
               return
-            } else {
-              this.startGame()
             }
+
+            this.playSongAndDisplayNote(this.objectSongComplete)
           },
         )
     }
