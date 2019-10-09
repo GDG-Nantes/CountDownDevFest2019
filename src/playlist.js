@@ -1,6 +1,50 @@
 'use strict'
 
-export const PLAYLIST = [
+export const PLAYLIST = [{
+    path: `5.4_La_Grange_–_ZZ_Top`,
+    name: 'La Grange – ZZ Top',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `3.5_Paint_It,_Black_–_The_Rolling_Stones`,
+    name: 'Paint It, Black – The Rolling Stones',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `00_Aerodynamic`,
+    name: 'Aerodynamic - Daft Punk',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `Queen_-_killer_queen_g_g+s`,
+    name: 'Killer Queen - Queen',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `The_Police_-_Message_in_a_Bottle`,
+    name: 'Message in a Bottle - The Police',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
   {
     path: `sweethomealabama`,
     name: 'Lynyrd Skynyrd - Sweet home alabama',
@@ -281,7 +325,7 @@ export const PLAYLIST = [
     },
   },
   {
-    path: `Guns_'N_Roses_-_Sweet_Child_'O_Mine`,
+    path: `Guns__N_Roses_-_Sweet_Child__O_Mine`,
     name: "Guns 'N Roses - Sweet Child 'O Mine",
     difficulty: 'EASY_DIFFICULTY',
     song: {
@@ -298,7 +342,11 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  { path: `acdc_-_thunder`, name: 'ACDC - Thunderstruck', difficulty: 'EASY_DIFFICULTY' },
+  {
+    path: `acdc_-_thunder`,
+    name: 'ACDC - Thunderstruck',
+    difficulty: 'EASY_DIFFICULTY'
+  },
   {
     path: `Rage_Against_the_Machine_-_Killing_in_the_Name`,
     name: 'Rage Against the Machine - Killing in the Name',
@@ -326,61 +374,15 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    path: `5.4_La_Grange_–_ZZ_Top`,
-    name: 'La Grange – ZZ Top',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `3.5_Paint_It,_Black_–_The_Rolling_Stones`,
-    name: 'Paint It, Black – The Rolling Stones',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `00_Aerodynamic`,
-    name: 'Aerodynamic - Daft Punk',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `Queen_-_killer_queen_g_g+s`,
-    name: 'Killer Queen - Queen',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `The_Police_-_Message_in_a_Bottle`,
-    name: 'Message in a Bottle - The Police',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
+
 ]
 
-export const LASTS_SONGS_PLAYLIST = [
-  {
-    path: '00__ACDC_-_Thunderstruck',
-    name: 'ACDC - Thunderstruck',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
+export const LASTS_SONGS_PLAYLIST = [{
+  path: '00__ACDC_-_Thunderstruck',
+  name: 'ACDC - Thunderstruck',
+  difficulty: 'EASY_DIFFICULTY',
+  song: {
+    song: 'song.ogg',
+    guitar: 'guitar.ogg',
   },
-]
+}, ]

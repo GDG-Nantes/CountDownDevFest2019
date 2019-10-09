@@ -7,9 +7,16 @@ import GameView from './game_view'
 import Timer from './timer'
 
 // Mix code
-import { AudioPlayer } from '../audio.js'
-import { VideoPlayer } from './video_player'
-import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
+import {
+  AudioPlayer
+} from '../audio.js'
+import {
+  VideoPlayer
+} from './video_player'
+import {
+  PLAYLIST,
+  LASTS_SONGS_PLAYLIST
+} from './playlist'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
 const timeBeforeLastSongs = 90 * 1000 // 1 Minute 30
@@ -22,6 +29,12 @@ class Game {
     this.touch = new Touch()
     this.started = false
     this.initFirebase()
+
+    this.timeSync = timesync.create({
+      server: 'https://us-central1-devfesthero.cloudfunctions.net/app/whatTime',
+      interval: null
+    })
+    this.timeSyncDone = false
 
     this.gameStartEl = document.getElementsByClassName('start')[0]
     this.gameStartListener = window.addEventListener('keypress', this.hitAToStart.bind(this))
@@ -51,81 +64,53 @@ class Game {
     this.firestoreDB = firebase.firestore()
   }
 
-  calcDeltaWithServer() {
-    if (this.countDownMode) {
-      return Promise.resolve(0)
-    } else {
-      const nowBeforeCall = Date.now()
-      return this.firestoreDB
-        .collection('deltaServer')
-        .add({ timeRef: firebase.firestore.FieldValue.serverTimestamp() })
-        .then(doc =>
-          this.firestoreDB
-            .collection('deltaServer')
-            .doc(doc.id)
-            .get(),
-        )
-        .then(doc => {
-          const now = Date.now()
-          const delta = now - nowBeforeCall
-          const timeServerRef = doc.data().timeRef.toMillis()
-          // TODO REMOVE DOC FROM FIREBASE
-          return { deltaFromServer: delta, timeServerRef }
-          // document.querySelector(
-          //   '.game-details-left',
-          // ).innerHTML = `timeServerRef = ${timeServerRef}<br>
-          // nowBeforeCall : ${nowBeforeCall}<br>
-          // deltaCall : ${delta}<br>
-          // delta : ${timeServerRef - nowBeforeCall - delta}`
+  performTimeSync(objectSong) {
+    return Promise.race([
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve(objectSong)
+        }, 5000)
+      }), new Promise((resolve, reject) => {
+        this.timeSync.on('sync', (state) => {
+          if (state === 'end') {
+            this.timeSync.off('sync');
+            this.timeSyncDone = true
+            resolve(objectSong);
+          }
         })
-    }
+        this.timeSyncDone = false
+        this.timeSync.sync()
+      })
+    ])
   }
+
 
   startGame(nextSong) {
     this.queryCurrentSongOrTakeFirst(nextSong)
       .then(objectSong => this.loadMidi(objectSong))
       .then(objectSong => this.addMusic(objectSong))
+      .then(objectSong => this.performTimeSync(objectSong))
       .then(objectSong => {
-        const nowBeforeSync = Date.now()
+        //const nowBeforeSync = Date.now()
         this.persistOrGetSongToDataBase(objectSong).then(
-          ({ timeStart: currentTime, deltaCall, startCountDown }) => {
+          ({
+            startCountDown
+          }) => {
             this.playMusic(this.startGame.bind(this)).then(_ => {
-              console.log(
-                `Delta Now : Firebase ${currentTime.toMillis()} / now : ${Date.now()}`,
-                objectSong,
-              )
               const now = Date.now()
+              const nowNTP = new Date(this.timeSync.now());
               if (this.countDownMode) {
                 this.firestoreDB
                   .collection('songs')
                   .doc('currentSong')
-                  .update({ deltaCall: now - currentTime.toMillis(), startCountDown: now })
+                  .update({
+                    startCountDown: nowNTP.getTime()
+                  })
               }
-              this.calcDeltaWithServer().then(({ deltaFromServer, timeServerRef }) => {
-                let deltaToApply = 0
-                if (this.countDownMode) {
-                  //Delta between hour of server for client and hour of server when start the song
-                  const deltaServerClientWithServerCD = currentTime.toMillis() - timeServerRef
-
-                  const deltaCountDown = deltaCall
-                  const hourInServerOfStartForCD = startCountDown - deltaCountDown
-                  const hourInServerOfStartForClient =
-                    hourInServerOfStartForCD + deltaServerClientWithServerCD
-                }
-
-                const timeStart = this.countDownMode ? now : now - (now - currentTime.toMillis())
-                //const timeStart = this.countDownMode ? now : now - deltaCall
-                // document.querySelector('.game-details-left').innerHTML = `
-                // delta serveur / countdown : ${deltaCall}<br>
-                // now : ${now}<br>
-                // timeServeur : ${currentTime.toMillis()}<br>
-                // nowBeforeCall : ${nowBeforeSync}<br>
-                // `
-                console.log(`Delta Of Sync : ${deltaCall}`)
-                this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-                this.gameStartEl.className = 'start hidden'
-                this.started = true
-              })
+              const timeStart = this.countDownMode ? now : now - (nowNTP.getTime() - startCountDown)
+              this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
+              this.gameStartEl.className = 'start hidden'
+              this.started = true
             })
           },
         )
@@ -140,9 +125,9 @@ class Game {
       .then(currentSongSnapshot => {
         if (currentSongSnapshot.exists) {
           const currentSongInFirebase = currentSongSnapshot.data()
-          const index = nextSong
-            ? (currentSongInFirebase.index + 1) % PLAYLIST.length
-            : currentSongInFirebase.index
+          const index = nextSong ?
+            (currentSongInFirebase.index + 1) % PLAYLIST.length :
+            currentSongInFirebase.index
           return {
             songToPlay: nextSong ? PLAYLIST[index] : currentSongInFirebase.songToPlay,
             index: index,
@@ -169,9 +154,9 @@ class Game {
         })
         .then(_ =>
           this.firestoreDB
-            .collection('songs')
-            .doc('currentSong')
-            .get(),
+          .collection('songs')
+          .doc('currentSong')
+          .get(),
         )
         .then(currentSongSnapshot => currentSongSnapshot.data())
     } else {
@@ -198,9 +183,11 @@ class Game {
       this.firestoreDB
         .collection('songs')
         .doc('currentSong')
-        .onSnapshot({ includeMetadataChanges: true }, currentSongSnapshot => {
+        .onSnapshot({
+          includeMetadataChanges: true
+        }, currentSongSnapshot => {
           const dataWrite = currentSongSnapshot.data()
-          if (!dataWrite || !dataWrite.deltaCall) {
+          if (!dataWrite || !dataWrite.startCountDown) {
             // nothing to do here
             return
           } else {
@@ -259,8 +246,7 @@ class Game {
     return new Promise((resolve, reject) => {
       Midi.fromUrl(`${location.origin}/assets/songs/${objectSong.songToPlay.path}/notes.mid`).then(
         midi => {
-          const objectSongCopy = Object.assign(
-            {
+          const objectSongCopy = Object.assign({
               title: objectSong.songToPlay.name,
               tickArray: [],
               tickMap: {},
@@ -272,26 +258,86 @@ class Game {
 
           const noteMap = {
             //
-            96: { difficulty: 'AMAZING_DIFFICULTY', note: 0 }, // 0x60
-            97: { difficulty: 'AMAZING_DIFFICULTY', note: 1 }, // 0x61
-            98: { difficulty: 'AMAZING_DIFFICULTY', note: 2 }, // 0x62
-            99: { difficulty: 'AMAZING_DIFFICULTY', note: 3 }, // 0x63
-            100: { difficulty: 'AMAZING_DIFFICULTY', note: 4 }, // 0x64
-            84: { difficulty: 'MEDIUM_DIFFICULTY', note: 0 }, // 0x54
-            85: { difficulty: 'MEDIUM_DIFFICULTY', note: 1 }, // 0x55
-            86: { difficulty: 'MEDIUM_DIFFICULTY', note: 2 }, // 0x56
-            87: { difficulty: 'MEDIUM_DIFFICULTY', note: 3 }, // 0x57
-            88: { difficulty: 'MEDIUM_DIFFICULTY', note: 4 }, // 0x58
-            72: { difficulty: 'EASY_DIFFICULTY', note: 0 }, // 0x48
-            73: { difficulty: 'EASY_DIFFICULTY', note: 1 }, // 0x49
-            74: { difficulty: 'EASY_DIFFICULTY', note: 2 }, // 0x4a
-            75: { difficulty: 'EASY_DIFFICULTY', note: 3 }, // 0x4b
-            76: { difficulty: 'EASY_DIFFICULTY', note: 4 }, // 0x4c
-            60: { difficulty: 'SUPAEASY_DIFFICULTY', note: 0 }, // 0x3c
-            61: { difficulty: 'SUPAEASY_DIFFICULTY', note: 1 }, // 0x3d
-            62: { difficulty: 'SUPAEASY_DIFFICULTY', note: 2 }, // 0x3e
-            63: { difficulty: 'SUPAEASY_DIFFICULTY', note: 3 }, // 0x3f
-            64: { difficulty: 'SUPAEASY_DIFFICULTY', note: 4 }, // 0x40
+            96: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 0
+            }, // 0x60
+            97: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 1
+            }, // 0x61
+            98: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 2
+            }, // 0x62
+            99: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 3
+            }, // 0x63
+            100: {
+              difficulty: 'AMAZING_DIFFICULTY',
+              note: 4
+            }, // 0x64
+            84: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 0
+            }, // 0x54
+            85: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 1
+            }, // 0x55
+            86: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 2
+            }, // 0x56
+            87: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 3
+            }, // 0x57
+            88: {
+              difficulty: 'MEDIUM_DIFFICULTY',
+              note: 4
+            }, // 0x58
+            72: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 0
+            }, // 0x48
+            73: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 1
+            }, // 0x49
+            74: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 2
+            }, // 0x4a
+            75: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 3
+            }, // 0x4b
+            76: {
+              difficulty: 'EASY_DIFFICULTY',
+              note: 4
+            }, // 0x4c
+            60: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 0
+            }, // 0x3c
+            61: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 1
+            }, // 0x3d
+            62: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 2
+            }, // 0x3e
+            63: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 3
+            }, // 0x3f
+            64: {
+              difficulty: 'SUPAEASY_DIFFICULTY',
+              note: 4
+            }, // 0x40
           }
 
           const mapNote = {}
