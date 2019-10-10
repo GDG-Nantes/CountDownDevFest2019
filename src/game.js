@@ -7,7 +7,7 @@ import GameView from './game_view'
 import Timer from './timer'
 
 // Mix code
-import { AudioPlayer } from '../audio.js'
+import { AudioPlayer } from './audio.js'
 import { VideoPlayer } from './video_player'
 import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
 import undefined from 'firebase/firestore'
