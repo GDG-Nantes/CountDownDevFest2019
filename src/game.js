@@ -92,25 +92,32 @@ class Game {
   playSongAndDisplayNote(objectSong) {
     this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
       const timeOut = this.countDownMode ? 5000 : 0
-      setTimeout(() => {
-        this.playMusic(this.startGame.bind(this)).then(_ => {
-          const now = Date.now()
-          const nowNTP = new Date(this.timeSync.now())
-          if (this.countDownMode) {
-            this.firestoreDB
-              .collection('songs')
-              .doc('currentSong')
-              .update({
-                startCountDown: nowNTP.getTime(),
-              })
-          }
-          const timeStart = this.countDownMode ? now : now - (nowNTP.getTime() - startCountDown)
-          this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-          this.gameStartEl.className = 'start hidden'
-          this.started = true
-        })
-      }, timeOut)
+      const now = Date.now()
+      const nowNTP = new Date(this.timeSync.now())
+      if (this.countDownMode) {
+        this.firestoreDB
+          .collection('songs')
+          .doc('currentSong')
+          .update({
+            startCountDown: nowNTP.getTime() + timeOut,
+          })
+      }
+      const timeStart = this.countDownMode
+        ? now + timeOut
+        : now - (nowNTP.getTime() - startCountDown)
+      this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
+      this.gameStartEl.className = 'start hidden'
+      this.started = true
+      this.playSongAtTime(this.startGame.bind(this), timeStart)
     })
+  }
+
+  playSongAtTime(callback, timeToStartToPlay) {
+    if (Date.now() > timeToStartToPlay) {
+      this.playMusic(callback)
+    } else {
+      window.requestAnimationFrame(() => this.playSongAtTime(callback, timeToStartToPlay))
+    }
   }
 
   startGame(nextSong) {
