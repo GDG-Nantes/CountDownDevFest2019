@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   closeInstructionElt.addEventListener('click', _ => {
     instructionElt.style.display = 'none'
+    const input = document.getElementById('pseudo').value
+    game.setPseudo(input)
     game.startGame()
     game.listenToChange()
   })
