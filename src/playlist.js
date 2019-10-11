@@ -2,6 +2,33 @@
 
 export const PLAYLIST = [
   {
+    path: `killerqueen`,
+    name: 'Queen - Killer Queen',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `killinginthenameof`,
+    name: 'Rage against the machine - Killing in the name of',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    path: `smellsliketeen`,
+    name: 'Nirvana - Smells like teen Spirit',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
     path: `The_Clash_-_Should_I_Stay_or_Should_I_Go`,
     name: 'The Clash - Should I Stay or Should I Go (Live)',
     difficulty: 'EASY_DIFFICULTY',
@@ -28,15 +55,7 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    path: `Rage_Against_the_Machine_-_Killing_in_the_Name`,
-    name: 'Rage Against the Machine - Killing in the Name',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
+
   {
     path: `messageinabottle`,
     name: 'The Police - Message in a bottle',
@@ -46,15 +65,7 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    path: `killinginthenameof`,
-    name: 'Rage against the machine - Killing in the name of',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
+
   {
     path: `iloverockandroll`,
     name: 'Joan Jett - I Love Rock And Roll',
@@ -64,15 +75,7 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    path: `killerqueen`,
-    name: 'Queen - Killer Queen',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
+
   {
     path: `Evanescence_-_Bring_me_to_life`,
     name: 'Evanescence - Bring me to life',
@@ -108,14 +111,7 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    path: `ACDC_-_Thunderstruck`,
-    name: 'ACDC - Thunderstruck',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
-    },
-  },
+
   {
     path: `7.4_Knights_of_Cydonia_-_ Muse`,
     name: 'Muse - Knights of Cydonia',
@@ -231,15 +227,6 @@ export const PLAYLIST = [
     },
   },
   {
-    path: `smellsliketeen`,
-    name: 'Nirvana - Smells like teen Spirit',
-    difficulty: 'AMAZING_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
     path: `starlight`,
     name: 'Muse - Starlight',
     difficulty: 'AMAZING_DIFFICULTY',
@@ -317,29 +304,7 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    path: `AC_DC_-_Thunderstruck_(Live)_fb_g+r+s`,
-    name: 'AC DC - Thunderstruck (Live)',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    path: `acdc_-_thunder`,
-    name: 'ACDC - Thunderstruck',
-    difficulty: 'EASY_DIFFICULTY',
-  },
-  {
-    path: `Rage_Against_the_Machine_-_Killing_in_the_Name`,
-    name: 'Rage Against the Machine - Killing in the Name',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
+
   {
     path: `2.5_Bulls_on_Parade_–_Rage_Against_the_Machine`,
     name: 'Bulls on Parade – Rage Against the Machine',
@@ -362,12 +327,11 @@ export const PLAYLIST = [
 
 export const LASTS_SONGS_PLAYLIST = [
   {
-    path: '00__ACDC_-_Thunderstruck',
+    path: `ACDC_-_Thunderstruck`,
     name: 'ACDC - Thunderstruck',
     difficulty: 'EASY_DIFFICULTY',
     song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
+      song: 'guitar.ogg',
     },
   },
 ]
