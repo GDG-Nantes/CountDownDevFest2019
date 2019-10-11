@@ -4,7 +4,7 @@ import GameNotes from './game_notes'
 import { throws } from 'assert'
 
 class GameView {
-  constructor(renderer, camera, scene, key, touch, noteToShow) {
+  constructor(renderer, camera, scene, key, touch, noteToShow, callBackIncScore) {
     this.renderer = renderer
     this.camera = camera
     this.scene = scene
@@ -43,6 +43,9 @@ class GameView {
     this.objectSong = undefined
 
     this.gameNotes = new GameNotes(undefined, undefined, undefined)
+
+    // Callback called when we incremente the score
+    this.callBackIncScore = callBackIncScore
   }
 
   setup() {
@@ -200,6 +203,20 @@ class GameView {
     return speedDelaySong + deltaDelaySong * percentBpmOfSong
   }
 
+  /**
+   * Reset the score and hits
+   */
+  resetScore() {
+    this.gameNotes.resetScores()
+  }
+
+  /**
+   * Set the current song to null to stop notes
+   */
+  resetSong() {
+    this.objectSong = null
+  }
+
   processTicks() {
     if (!this.objectSong) return
 
@@ -306,6 +323,7 @@ class GameView {
         noteMesh.pressed = true
         this.gameNotes.incrementHits()
         this.gameNotes.incrementScore()
+        this.callBackIncScore(this.gameNotes.getScore())
       }
     } else if (noteMesh.noteFinished && !noteMesh.pressed) {
       // console.error(
