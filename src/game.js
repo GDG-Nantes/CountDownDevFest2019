@@ -13,32 +13,45 @@ import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
 import undefined from 'firebase/firestore'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
-const timeBeforeLastSongs = 90 * 1000 // 1 Minute 30
+const timeBeforeLastSongs = 4 * 60 * 1000 + 52 * 1000 + 12 * 1000 // 4 Minute 52 + 12s (7s of delay + 5s of dropdown song)
 const dropTimeForLastSong = 5 * 1000 // 5 sec
 
 class Game {
   constructor(countDownMode) {
+    // True if we are on the main screen
     this.countDownMode = countDownMode
+    // Mappers (key : A/S/D/F/G and touch)
     this.key = new Key()
     this.touch = new Touch()
-    this.started = false
+
+    // Flag to now if we have to switch to last songs playlist (linked to timeBeforeLastSongs)
+    this.switchToLastsSongs = false
+    // Flag to now if we have to reset the index of playlist
+    this.resetIndexPlayList = false
+    // Default pseudo
+    this.pseudo = 'anonymous'
+
+    // Init the database connection
     this.initFirebase()
 
+    // Init the connection to sync clock server (mandatory to sync all devices)
     this.timeSync = timesync.create({
       server: 'https://us-central1-devfesthero.cloudfunctions.net/app/whatTime',
       interval: null,
     })
-    this.timeSyncDone = false
+    // Copy of Object song complete with midi notes
     this.objectSongComplete = undefined
 
-    this.gameStartEl = document.getElementsByClassName('start')[0]
-    this.gameStartListener = window.addEventListener('keypress', this.hitAToStart.bind(this))
-
+    // We init the canvas
     this.createGameView()
 
+    // We init the Audio player
     this.audioPlayer = new AudioPlayer()
+    // We start the timer (countdwon)
     this.timer = new Timer(this.callbackTimer.bind(this))
+    // the html element that will be blank when we start the video
     const opacityElt = document.getElementById('opacity')
+    // We init the video player
     this.videoPlayer = new VideoPlayer(opacityElt, () => {
       // console.debug('end');
       setTimeout(() => {
@@ -47,6 +60,24 @@ class Game {
     })
   }
 
+  /**
+   * Define the pseudo (by default will use 'anonymous')
+   *
+   * This method will persist in firebase the name of user
+   * @param {string} pseudo
+   */
+  setPseudo(pseudo) {
+    this.pseudo = pseudo && pseudo.length > 0 ? pseudo : this.pseudo
+    // When we have the pseudo of user, we create the document that will keep the score informations
+    this.firestoreDB
+      .collection('users')
+      .add({ pseudo: this.pseudo, score: 0 })
+      .then(docRef => (this.docRefId = docRef.id))
+  }
+
+  /**
+   * Init the connection to firebase
+   */
   initFirebase() {
     const firebaseConfig = {
       apiKey: 'AIzaSyDdTuuIeGVwsb2xNLjfUD88EzqBbk936k0',
@@ -59,39 +90,61 @@ class Game {
     this.firestoreDB = firebase.firestore()
   }
 
+  /**
+   * Request a time sychronisation
+   *
+   * Return a Promise with the same objectSong (to chain promises)
+   * @param {Object} objectSong
+   */
   performTimeSync(objectSong) {
+    // As the syncrhonisation could be long, we race the call
     return Promise.race([
       new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve(objectSong)
-        }, 5000)
+        setTimeout(() => console.log('Race win by timeout') || resolve(objectSong), 5000)
       }),
       new Promise((resolve, reject) => {
         this.timeSync.on('sync', state => {
+          console.log(`Sync state ${state}`)
           if (state === 'end') {
+            console.log('Sync end')
             this.timeSync.off('sync')
-            this.timeSyncDone = true
             resolve(objectSong)
           }
         })
-        this.timeSyncDone = false
+        console.log('Sync Asked')
         this.timeSync.sync()
       }),
     ])
   }
 
+  /**
+   * Load the midi object, load the ogg files according to objectSong parameter
+   *
+   * Return a Promise with objectSong as response (to chain Promise)
+   * @param {Object} objectSong
+   */
   loadSong(objectSong) {
     return (
+      // When we load the song we set the name of the song
       this.gameView.setCurrentSong(objectSong, true) ||
       this.loadMidi(objectSong)
         .then(objectSong => this.addMusic(objectSong))
+        // At the end we ask for clock syncrhonisation
         .then(objectSong => this.performTimeSync(objectSong))
     )
   }
 
+  /**
+   * Save or get the current song
+   * Syncrhonise the current time to the countdown and ask to play the song
+   *
+   * @param {Object} objectSong
+   */
   playSongAndDisplayNote(objectSong) {
+    // We ask or persist the current song
     this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
-      const timeOut = this.countDownMode ? 5000 : 0
+      // If we're on the countdown, we delay of 7s the start of the song
+      const timeOut = this.countDownMode ? 7000 : 0
       const now = Date.now()
       const nowNTP = new Date(this.timeSync.now())
       if (this.countDownMode) {
@@ -106,8 +159,6 @@ class Game {
         ? now + timeOut
         : now - (nowNTP.getTime() - startCountDown)
       this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-      this.gameStartEl.className = 'start hidden'
-      this.started = true
       this.playSongAtTime(this.startGame.bind(this), timeStart)
     })
   }
@@ -121,6 +172,7 @@ class Game {
   }
 
   startGame(nextSong) {
+    this.gameView.resetScore()
     this.queryCurrentSongOrTakeFirst(nextSong)
       .then(objectSong => this.loadSong(objectSong))
       .then(objectSong => this.playSongAndDisplayNote(objectSong))
@@ -132,18 +184,21 @@ class Game {
       .doc('currentSong')
       .get()
       .then(currentSongSnapshot => {
-        if (currentSongSnapshot.exists) {
+        const playlistToUse = this.switchToLastsSongs ? LASTS_SONGS_PLAYLIST : PLAYLIST
+        if (currentSongSnapshot.exists || (this.switchToLastsSongs && !this.resetIndexPlayList)) {
           const currentSongInFirebase = currentSongSnapshot.data()
           const index = nextSong
-            ? (currentSongInFirebase.index + 1) % PLAYLIST.length
+            ? (currentSongInFirebase.index + 1) % playlistToUse.length
             : currentSongInFirebase.index
           return {
-            songToPlay: nextSong ? PLAYLIST[index] : currentSongInFirebase.songToPlay,
+            songToPlay: nextSong ? playlistToUse[index] : currentSongInFirebase.songToPlay,
             index: index,
           }
         } else {
+          this.resetIndexPlayList =
+            this.resetIndexPlayList || (this.switchToLastsSongs && !!this.resetIndexPlayList)
           return {
-            songToPlay: PLAYLIST[0],
+            songToPlay: playlistToUse[0],
             index: 0,
           }
         }
@@ -177,15 +232,6 @@ class Game {
     }
   }
 
-  hitAToStart(e) {
-    if (!this.started) {
-      if (e.keyCode === 97 || e.keyCode === 65) {
-        this.startGame()
-        this.listenToChange()
-      }
-    }
-  }
-
   listenToChange() {
     if (!this.countDownMode) {
       // If we're not on countdown mode, we have to listen to change of songs
@@ -201,16 +247,46 @@ class Game {
             if (!dataWrite) {
               return
             }
+            let toFastForloadingSong = false
             this.gameView.setCurrentSong(dataWrite, true)
             if (!dataWrite.startCountDown) {
-              this.loadSong(dataWrite).then(objectSong => (this.objectSongComplete = objectSong))
+              this.loadSong(dataWrite).then(objectSong => {
+                this.objectSongComplete = objectSong
+                if (toFastForloadingSong) {
+                  this.playSongAndDisplayNote(this.objectSongComplete)
+                }
+              })
               // nothing to do here
               return
             }
+            toFastForloadingSong = !!this.objectSongComplete
+            this.gameView.resetScore()
 
-            this.playSongAndDisplayNote(this.objectSongComplete)
+            if (this.objectSongComplete) {
+              this.playSongAndDisplayNote(this.objectSongComplete)
+            }
           },
         )
+    } else {
+      // if we're on countdown, we listen to evolutions of scores
+      const usersCollection = this.firestoreDB.collection('users')
+      usersCollection
+        .where('score', '>', 0)
+        .orderBy('score')
+        .limit(10)
+        .onSnapshot(function(snapshot) {
+          snapshot.docChanges().forEach(function(change) {
+            if (change.type === 'added') {
+              console.log('New city: ', change.doc.data())
+            }
+            if (change.type === 'modified') {
+              console.log('Modified city: ', change.doc.data())
+            }
+            if (change.type === 'removed') {
+              console.log('Removed city: ', change.doc.data())
+            }
+          })
+        })
     }
   }
 
@@ -234,10 +310,30 @@ class Game {
     renderer.setSize(width, height)
     document.getElementById('game-canvas').appendChild(renderer.domElement)
 
-    this.gameView = new GameView(renderer, camera, scene, this.key, this.touch, NOTE_TO_SHOW)
+    this.gameView = new GameView(
+      renderer,
+      camera,
+      scene,
+      this.key,
+      this.touch,
+      NOTE_TO_SHOW,
+      this.incrementeScore.bind(this),
+    )
     this.gameView.setup()
 
     this.timer
+  }
+
+  /**
+   *  called when the score is increment
+   * The score will be store in database
+   * @param {int}  score
+   **/
+  incrementeScore(score) {
+    this.firestoreDB
+      .collection('users')
+      .doc(this.docRefId)
+      .update({ score })
   }
 
   playMusic(callbackEndMusic) {
@@ -413,9 +509,11 @@ class Game {
           const adjustDiff = state.value.diff - (timeBeforeLastSongs - dropTimeForLastSong)
           this.audioPlayer.manageVolumeFromPercent(adjustDiff / dropTimeForLastSong)
         } else if (state.value.diff < timeBeforeLastSongs && !this.switchToLastsSongs) {
-          // TODO Switch to last song !
-          //this.audioPlayer.switchToLastsSongPlaylist();
           this.switchToLastsSongs = true
+          this.gameView.resetSong()
+          this.audioPlayer.stop()
+          this.audioPlayer.manageVolumeFromPercent(100)
+          this.startGame(true)
         } else if (this.audioPlayer) {
           this.audioPlayer.manageSoundVolume(state.value.diff)
         }
