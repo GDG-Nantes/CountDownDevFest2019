@@ -247,19 +247,19 @@ class Game {
             if (!dataWrite) {
               return
             }
-            let toFastForloadingSong = false
+            this.toFastForloadingSong = false
             this.gameView.setCurrentSong(dataWrite, true)
             if (!dataWrite.startCountDown) {
               this.loadSong(dataWrite).then(objectSong => {
                 this.objectSongComplete = objectSong
-                if (toFastForloadingSong) {
+                if (this.toFastForloadingSong) {
                   this.playSongAndDisplayNote(this.objectSongComplete)
                 }
               })
               // nothing to do here
               return
             }
-            toFastForloadingSong = !!this.objectSongComplete
+            this.toFastForloadingSong = !this.objectSongComplete
             this.gameView.resetScore()
 
             if (this.objectSongComplete) {
