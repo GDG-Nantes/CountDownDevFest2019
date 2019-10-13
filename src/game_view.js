@@ -287,6 +287,9 @@ class GameView {
 
   sceneUpdateNew() {
     this.processTicks()
+
+    this.checkPressLongKeys()
+
     this.spheres.forEach(sphere => {
       if (sphere.noteFinished) return
 
@@ -315,6 +318,15 @@ class GameView {
 
       this.processNotePressed(sphere, timeEllapseForNote)
     })
+  }
+
+  checkPressLongKeys() {
+    const pressTooLong = this.key.isPressTooLong(1000)
+    const touchTooLong = this.touch.isPressTooLong(1000)
+    if (pressTooLong || touchTooLong) {
+      console.log('Press/Touch too long, so reset.');
+      this.gameNotes.resetScores()
+    }
   }
 
   processNotePressed(noteMesh, timeEllapseForNote) {

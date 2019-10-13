@@ -4,6 +4,7 @@
 class Key {
   constructor() {
     this._pressed = {};
+    this._pressedStart = {};
     this._pressedVisually = {};
     this.pos = {
       1: 65,
@@ -30,6 +31,17 @@ class Key {
     });
   }
 
+  isPressTooLong(time) {
+    const now =  Date.now();
+    for(let key in this._pressedStart) {
+      const value = this._pressedStart[key]
+      if ((now - value) > time) {
+        return true
+      }
+    }
+    return false;
+  }
+
   isDown(keyCode) {
     return this._pressed[keyCode];
   }
@@ -39,12 +51,16 @@ class Key {
   }
 
   onKeydown(e) {
+    if (!this._pressedStart[e.keyCode]) {
+      this._pressedStart[e.keyCode] = Date.now()
+    }
     this._pressed[e.keyCode] = true;
     this._pressedVisually[e.keyCode] = true;
   }
 
   onKeyup(e) {
     delete this._pressedVisually[e.keyCode];
+    delete this._pressedStart[e.keyCode];
     let buffer = 300; // buffer for leniency
     setTimeout( () => {
       delete this._pressed[e.keyCode];
