@@ -3,14 +3,6 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-.mobile-mode .hide-mobile {
-  display: none;
-}
-
-.countdown-mode .hide-countdown {
-  display: none;
-}
-
 #game-canvas {
   position: relative;
   height: 100%;
@@ -26,44 +18,117 @@ body {
   left: 0;
   right: 0;
   color: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 50px 20px 20px 20px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-areas: "logo scores"
+                       "countdown scores"
+                       "song scores";
+  padding: 0;
+  background: rgba(0, 0, 0, 0.75);
 }
 
-.game-details-right,
+.game-logo {
+  grid-area: logo;
+  text-align: center;
+}
+
+.countdown-wrapper {
+  grid-area: countdown;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3em;
+  font-weight: bold;
+  text-align: center;
+}
+
 .game-details-left {
+  display: none;
+}
+
+.game-details-right {
+  grid-area: scores;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: flex-start;
-  width: 195px;
-  height: 120px;
   padding: 15px 20px;
   border-radius: 20px;
-  background: rgba(0, 0, 0, 0.75);
+  height: 300px;
+  overflow: hidden;
+}
+
+.highscores {
+  font-size: 1.3em;
+  line-height: 1.3em;
+  margin: 0;
 }
 
 .game-details-center {
+  grid-area: song;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 600px;
-  height: 200px;
   padding: 15px 20px;
   border-radius: 20px;
-  background: rgba(0, 0, 0, 0.75);
 }
 
 .score,
 .streak,
 .multiplier,
 .max-streak,
-.countdown,
 .current-song {
   font-size: 28px;
+}
+
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  .countdown-wrapper {
+    display: none;
+  }
+
+  .game-details-right {
+    display: none;
+  }
+
+  .game-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  .game-details-left {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 90%;
+    height: auto;
+    border-radius: 0;
+    padding: 5px 20px;
+  }
+
+  .game-details-left > * {
+    font-size: 1.2em;
+    width: 50%;
+  }
+
+  .game-details-center {
+    width: 90%;
+    height: auto;
+    padding: 15px 20px;
+    border-radius: 0;
+    line-height: 2.5em;
+    padding: 5px 20px;
+  }
+
+  .game-details-center > h1 {
+    margin: 0;
+    font-size: 1.5em;
+    text-align: center;
+  }
 }
 
 .game-progress {
@@ -208,12 +273,34 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+.instructions-logo {
+  margin-bottom: 3em;
+}
+
+.instructions-validate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 1em;
+  width: 320px;
+}
+
 .close-instructions {
+  font-size: 1.3em;
   color: white;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
+  cursor: pointer;
+  height: 2em;
+  background: red;
+  width: 100%;
+  margin: 1em;
+  border-radius: 5px;
+  padding: 0.5em;
 }
 
 .close-instructions h1:hover {
@@ -224,6 +311,7 @@ body {
   font-size: 50px;
   font-weight: 700;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .close-instructions h2 {
@@ -232,15 +320,32 @@ body {
   margin: 0;
 }
 
-.instructions-text {
+.instructions-pseudo {
   color: white;
   font-size: 18px;
   width: 350px;
-  text-align: justify;
+  text-align: center;
+  margin-bottom: 1.5em;
 }
 
-.instructions-text li {
-  margin-bottom: 5px;
+.instructions-input {
+  padding: .5em;
+  font-size: 1.3em;
+  border: 0;
+  border-radius: 5px;
+  text-align: center;
+  width: 320px;
+}
+
+.instructions-text {
+  color: white;
+  font-size: 18px;
+  width: 320px;
+  text-align: center;
+}
+
+.instructions-text h1 {
+  font-size: 1.2em;
 }
 
 .instructions .letters {
@@ -250,8 +355,9 @@ body {
   list-style: none;
   font-size: 25px;
   font-weight: 700;
-  width: 325px;
+  width: 320px;
   color: black;
+  padding-inline-start: 0;
 }
 
 .instructions .letters li {
