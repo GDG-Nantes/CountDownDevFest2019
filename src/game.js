@@ -5,12 +5,14 @@ import Key from './key'
 import Touch from './touch'
 import GameView from './game_view'
 import Timer from './timer'
-
-// Mix code
 import { AudioPlayer } from './audio.js'
 import { VideoPlayer } from './video_player'
 import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
 import undefined from 'firebase/firestore'
+
+// Mix code
+const COLLECTION_USERS = 'users'
+const COLLECTION_SONGS = 'songs'
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
 const timeBeforeLastSongs = 4 * 60 * 1000 + 52 * 1000 + 12 * 1000 // 4 Minute 52 + 12s (7s of delay + 5s of dropdown song)
@@ -30,6 +32,9 @@ class Game {
     this.resetIndexPlayList = false
     // Default pseudo
     this.pseudo = 'anonymous'
+
+    // Firebase Listener
+    this.firebaseListenerForChangeOfScores = undefined
 
     // Init the database connection
     this.initFirebase()
@@ -70,8 +75,8 @@ class Game {
     this.pseudo = pseudo && pseudo.length > 0 ? pseudo : this.pseudo
     // When we have the pseudo of user, we create the document that will keep the score informations
     this.firestoreDB
-      .collection('users')
-      .add({ pseudo: this.pseudo, score: 0 })
+      .collection(COLLECTION_USERS)
+      .add({ pseudo: this.pseudo })
       .then(docRef => (this.docRefId = docRef.id))
   }
 
@@ -100,7 +105,7 @@ class Game {
     // As the syncrhonisation could be long, we race the call
     return Promise.race([
       new Promise((resolve, reject) => {
-        setTimeout(() => console.log('Race win by timeout') || resolve(objectSong), 5000)
+        setTimeout(() => console.log('Race win by timeout') || resolve(objectSong), 15000)
       }),
       new Promise((resolve, reject) => {
         this.timeSync.on('sync', state => {
@@ -128,9 +133,12 @@ class Game {
       // When we load the song we set the name of the song
       this.gameView.setCurrentSong(objectSong, true) ||
       this.loadMidi(objectSong)
-        .then(objectSong => this.addMusic(objectSong))
+        .then(objectSong => console.log('Midi loaded -> loadMusic') || this.addMusic(objectSong))
         // At the end we ask for clock syncrhonisation
-        .then(objectSong => this.performTimeSync(objectSong))
+        .then(
+          objectSong =>
+            console.log('Music loaded -> Clock Sync') || this.performTimeSync(objectSong),
+        )
     )
   }
 
@@ -143,13 +151,15 @@ class Game {
   playSongAndDisplayNote(objectSong) {
     // We ask or persist the current song
     this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
+      console.log('Song persist into database')
       // If we're on the countdown, we delay of 7s the start of the song
       const timeOut = this.countDownMode ? 7000 : 0
       const now = Date.now()
       const nowNTP = new Date(this.timeSync.now())
       if (this.countDownMode) {
+        console.log('send now to server')
         this.firestoreDB
-          .collection('songs')
+          .collection(COLLECTION_SONGS)
           .doc('currentSong')
           .update({
             startCountDown: nowNTP.getTime() + timeOut,
@@ -158,8 +168,12 @@ class Game {
       const timeStart = this.countDownMode
         ? now + timeOut
         : now - (nowNTP.getTime() - startCountDown)
+      console.log('configure board')
       this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-      this.playSongAtTime(this.startGame.bind(this), timeStart)
+      console.log('Ask to play sond at correct time', timeStart)
+      if (this.countDownMode) {
+        this.playSongAtTime(this.startGame.bind(this), timeStart)
+      }
     })
   }
 
@@ -172,15 +186,22 @@ class Game {
   }
 
   startGame(nextSong) {
+    console.log('start Game')
     this.gameView.resetScore()
     this.queryCurrentSongOrTakeFirst(nextSong)
-      .then(objectSong => this.loadSong(objectSong))
-      .then(objectSong => this.playSongAndDisplayNote(objectSong))
+      .then(objectSong => this.listenToScoreForSong(objectSong))
+      .then(
+        objectSong =>
+          console.log('Curent song find->load', objectSong) || this.loadSong(objectSong),
+      )
+      .then(
+        objectSong => console.log('Song loaded->play') || this.playSongAndDisplayNote(objectSong),
+      )
   }
 
   queryCurrentSongOrTakeFirst(nextSong) {
     return this.firestoreDB
-      .collection('songs')
+      .collection(COLLECTION_SONGS)
       .doc('currentSong')
       .get()
       .then(currentSongSnapshot => {
@@ -209,7 +230,7 @@ class Game {
     // We only save datas of song (time of start) if we're on the countdown screen
     if (this.countDownMode) {
       return this.firestoreDB
-        .collection('songs')
+        .collection(COLLECTION_SONGS)
         .doc('currentSong')
         .set({
           songToPlay: objectSong.songToPlay,
@@ -218,14 +239,14 @@ class Game {
         })
         .then(_ =>
           this.firestoreDB
-            .collection('songs')
+            .collection(COLLECTION_SONGS)
             .doc('currentSong')
             .get(),
         )
         .then(currentSongSnapshot => currentSongSnapshot.data())
     } else {
       return this.firestoreDB
-        .collection('songs')
+        .collection(COLLECTION_SONGS)
         .doc('currentSong')
         .get()
         .then(currentSongSnapshot => currentSongSnapshot.data())
@@ -236,7 +257,7 @@ class Game {
     if (!this.countDownMode) {
       // If we're not on countdown mode, we have to listen to change of songs
       this.firestoreDB
-        .collection('songs')
+        .collection(COLLECTION_SONGS)
         .doc('currentSong')
         .onSnapshot(
           {
@@ -267,27 +288,34 @@ class Game {
             }
           },
         )
-    } else {
-      // if we're on countdown, we listen to evolutions of scores
-      const usersCollection = this.firestoreDB.collection('users')
-      usersCollection
-        .where('score', '>', 0)
-        .orderBy('score')
-        .limit(10)
-        .onSnapshot(function(snapshot) {
-          snapshot.docChanges().forEach(function(change) {
-            if (change.type === 'added') {
-              console.log('New city: ', change.doc.data())
-            }
-            if (change.type === 'modified') {
-              console.log('Modified city: ', change.doc.data())
-            }
-            if (change.type === 'removed') {
-              console.log('Removed city: ', change.doc.data())
-            }
-          })
-        })
     }
+  }
+
+  listenToScoreForSong(objectSong) {
+    return new Promise((resolve, reject) => {
+      // If we have already set the listener for scores, we have to unsubcribe
+      if (this.firebaseListenerForChangeOfScores) {
+        this.firebaseListenerForChangeOfScores()
+      }
+      // if we're on countdown, we listen to evolutions of scores
+      const usersCollection = this.firestoreDB.collection(COLLECTION_SONGS)
+      this.firebaseListenerForChangeOfScores = usersCollection
+        .doc(objectSong.songToPlay.path)
+        .collection(COLLECTION_USERS)
+        .where('score', '>', 0)
+        .orderBy('score', 'desc')
+        .limit(10)
+        .onSnapshot(snapshot => {
+          const userArray = []
+          snapshot.forEach(change => {
+            userArray.push(change.data())
+          })
+          if (this.gameView) {
+            this.gameView.setHighScores(userArray)
+          }
+        })
+      resolve(objectSong)
+    })
   }
 
   createGameView() {
@@ -329,11 +357,13 @@ class Game {
    * The score will be store in database
    * @param {int}  score
    **/
-  incrementeScore(score) {
+  incrementeScore(objectSong, score) {
     this.firestoreDB
-      .collection('users')
+      .collection(COLLECTION_SONGS)
+      .doc(objectSong.songToPlay.path)
+      .collection(COLLECTION_USERS)
       .doc(this.docRefId)
-      .update({ score })
+      .set({ pseudo: this.pseudo, score })
   }
 
   playMusic(callbackEndMusic) {

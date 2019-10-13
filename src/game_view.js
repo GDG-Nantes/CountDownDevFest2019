@@ -56,8 +56,21 @@ class GameView {
     this.gameLoop()
   }
 
+  /**
+   * Give the current time to display
+   * @param {long} timeData
+   */
   setTime(timeData) {
     this.gameNotes.setTime(timeData)
+  }
+
+  /**
+   *
+   * Give highscore to display
+   * @param {Array<Object>} highScores
+   */
+  setHighScores(highScores) {
+    this.gameNotes.highScores = highScores
   }
 
   setWindowResizer() {
@@ -323,7 +336,7 @@ class GameView {
         noteMesh.pressed = true
         this.gameNotes.incrementHits()
         this.gameNotes.incrementScore()
-        this.callBackIncScore(this.gameNotes.getScore())
+        this.callBackIncScore(this.objectSong, this.gameNotes.getScore())
       }
     } else if (noteMesh.noteFinished && !noteMesh.pressed) {
       // console.error(
@@ -365,6 +378,7 @@ class GameView {
 
     this.sceneUpdateNew()
     this.sceneRender()
+    this.gameNotes.refreshHighScore()
   }
 }
 

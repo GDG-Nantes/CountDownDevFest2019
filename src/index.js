@@ -2,9 +2,9 @@ import Game from './game'
 
 document.addEventListener('DOMContentLoaded', () => {
   const countDownMode = location.hash && location.hash === '#countdown'
-  if (!countDownMode) {
-    document.getElementById('game-canvas').classList.add('mobile')
-  }
+  document
+    .getElementById('game-canvas')
+    .classList.add(countDownMode ? 'countdown-mode' : 'mobile-mode')
   let game = new Game(countDownMode)
 
   const instructionElt = document.querySelector('.instructions')
@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = document.getElementById('pseudo').value
     game.setPseudo(input)
     game.startGame()
-    game.listenToChange()
+    if (!countDownMode) {
+      game.listenToChange()
+    }
   })
 })

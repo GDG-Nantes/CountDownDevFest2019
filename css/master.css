@@ -3,7 +3,11 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-.mobile .hide-mobile {
+.mobile-mode .hide-mobile {
+  display: none;
+}
+
+.countdown-mode .hide-countdown {
   display: none;
 }
 

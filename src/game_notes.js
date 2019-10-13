@@ -10,6 +10,11 @@ class GameNotes {
     this.multiplierEl = document.getElementsByClassName('multiplier')[0]
     this.countdownEl = document.getElementsByClassName('countdown')[0]
     this.currentSongEl = document.getElementsByClassName('current-song')[0]
+    this.arrayHighScoreElt = []
+    let listHighScoreElts = document.getElementsByClassName('highscore-player')
+    for (let i = 0; i < 10; i++) {
+      this.arrayHighScoreElt.push(listHighScoreElts[i])
+    }
 
     // Score
     this.score = 0
@@ -19,6 +24,8 @@ class GameNotes {
     this.multiplier = 1
     // Current combo
     this.hits = 0
+    //HighScores
+    this.highScores = []
   }
 
   incrementHits() {
@@ -55,6 +62,19 @@ class GameNotes {
     }
     this.score += 100 * Number(this.multiplier)
     this.refreshScore()
+  }
+
+  refreshHighScore() {
+    let i = 0
+    for (let hightScoreElt of this.arrayHighScoreElt) {
+      hightScoreElt.style.display = 'none'
+    }
+    for (let highScore of this.highScores) {
+      let hightScoreElt = this.arrayHighScoreElt[i]
+      hightScoreElt.style.display = ''
+      hightScoreElt.innerHTML = `${highScore.pseudo} : ${highScore.score}`
+      i++
+    }
   }
 
   refreshScore() {
