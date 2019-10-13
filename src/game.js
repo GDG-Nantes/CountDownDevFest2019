@@ -7,12 +7,14 @@ import GameView from './game_view'
 import Timer from './timer'
 import { AudioPlayer } from './audio.js'
 import { VideoPlayer } from './video_player'
-import { PLAYLIST, LASTS_SONGS_PLAYLIST } from './playlist'
+import { PLAYLIST, LAST_SONGS_PLAYLIST } from './playlist'
 import undefined from 'firebase/firestore'
 
-// Mix code
+// Firebase database const
 const COLLECTION_USERS = 'users'
 const COLLECTION_SONGS = 'songs'
+const DOCUMENT_CURRENT_SONG = 'currentSong'
+// Number of note to show (1 -> 5) : default 3
 const NOTE_TO_SHOW = 3
 const DEBUG_MUTE = false // Default = false; true if you don't want the sound
 const timeBeforeLastSongs = 4 * 60 * 1000 + 52 * 1000 + 12 * 1000 // 4 Minute 52 + 12s (7s of delay + 5s of dropdown song)
@@ -105,18 +107,15 @@ class Game {
     // As the syncrhonisation could be long, we race the call
     return Promise.race([
       new Promise((resolve, reject) => {
-        setTimeout(() => console.log('Race win by timeout') || resolve(objectSong), 15000)
+        setTimeout(() => resolve(objectSong), 15000)
       }),
       new Promise((resolve, reject) => {
         this.timeSync.on('sync', state => {
-          console.log(`Sync state ${state}`)
           if (state === 'end') {
-            console.log('Sync end')
             this.timeSync.off('sync')
             resolve(objectSong)
           }
         })
-        console.log('Sync Asked')
         this.timeSync.sync()
       }),
     ])
@@ -133,12 +132,9 @@ class Game {
       // When we load the song we set the name of the song
       this.gameView.setCurrentSong(objectSong, true) ||
       this.loadMidi(objectSong)
-        .then(objectSong => console.log('Midi loaded -> loadMusic') || this.addMusic(objectSong))
+        .then(objectSong => this.loadMusic(objectSong))
         // At the end we ask for clock syncrhonisation
-        .then(
-          objectSong =>
-            console.log('Music loaded -> Clock Sync') || this.performTimeSync(objectSong),
-        )
+        .then(objectSong => this.performTimeSync(objectSong))
     )
   }
 
@@ -151,32 +147,41 @@ class Game {
   playSongAndDisplayNote(objectSong) {
     // We ask or persist the current song
     this.persistOrGetSongToDataBase(objectSong).then(({ startCountDown }) => {
-      console.log('Song persist into database')
       // If we're on the countdown, we delay of 7s the start of the song
       const timeOut = this.countDownMode ? 7000 : 0
+      // We get now of browser to compare it witb NTP now
       const now = Date.now()
       const nowNTP = new Date(this.timeSync.now())
+      // if we're in countdown, we update the reald time of Start to inform all devices the time ref
       if (this.countDownMode) {
-        console.log('send now to server')
         this.firestoreDB
           .collection(COLLECTION_SONGS)
-          .doc('currentSong')
+          .doc(DOCUMENT_CURRENT_SONG)
           .update({
             startCountDown: nowNTP.getTime() + timeOut,
           })
       }
+      // TimeStart is the time when the song and notes should start
       const timeStart = this.countDownMode
         ? now + timeOut
         : now - (nowNTP.getTime() - startCountDown)
-      console.log('configure board')
-      this.gameView.addMovingNotes(objectSong, timeStart) // now - (now - currentTime.toMillis()))
-      console.log('Ask to play sond at correct time', timeStart)
+      // We configure the board
+      this.gameView.addMovingNotes(objectSong, timeStart)
+      // We only play the song in countdown mode
       if (this.countDownMode) {
-        this.playSongAtTime(this.startGame.bind(this), timeStart)
+        // as we create a delay before the start of song (timeout) we wait for the right time to start the song
+        this.playSongAtTime(this.startSong.bind(this), timeStart)
       }
     })
   }
 
+  /**
+   *
+   * this method is call at every RequestAnimationFrame to start the song at the right moment
+   *
+   * @param {function} callback : the callback to call when the song is over
+   * @param {time} timeToStartToPlay  : the real time of start
+   */
   playSongAtTime(callback, timeToStartToPlay) {
     if (Date.now() > timeToStartToPlay) {
       this.playMusic(callback)
@@ -185,27 +190,45 @@ class Game {
     }
   }
 
-  startGame(nextSong) {
-    console.log('start Game')
+  /**
+   * Start a song :
+   * 1. get the song to play
+   * 2. load song
+   * 3. play it
+   *
+   * @param {boolean} nextSong : true if we have to start the next song in playlist
+   */
+  startSong(nextSong) {
+    // Each time a song start, we reset the board
     this.gameView.resetScore()
+    // We frst request server to get the right song to play
     this.queryCurrentSongOrTakeFirst(nextSong)
-      .then(objectSong => this.listenToScoreForSong(objectSong))
-      .then(
-        objectSong =>
-          console.log('Curent song find->load', objectSong) || this.loadSong(objectSong),
-      )
-      .then(
-        objectSong => console.log('Song loaded->play') || this.playSongAndDisplayNote(objectSong),
-      )
+      // If we're in countdown mode, we listen to Highscore
+      .then(objectSong => (this.countDownMode ? this.listenToScoreForSong(objectSong) : objectSong))
+      .then(objectSong => this.loadSong(objectSong))
+      .then(objectSong => this.playSongAndDisplayNote(objectSong))
   }
 
+  /**
+   * If we're in countdown :
+   * if nextSong === true -> we look at the next song in playlist
+   * else -> we take the song on the server
+   * If no song on the server -> we take the first of the playlist
+   *
+   * If we're on a device :
+   * we take the song on the server
+   *
+   * @param {boolean} nextSong
+   */
   queryCurrentSongOrTakeFirst(nextSong) {
     return this.firestoreDB
       .collection(COLLECTION_SONGS)
-      .doc('currentSong')
+      .doc(DOCUMENT_CURRENT_SONG)
       .get()
       .then(currentSongSnapshot => {
-        const playlistToUse = this.switchToLastsSongs ? LASTS_SONGS_PLAYLIST : PLAYLIST
+        // If we're in the delay to play the last song, we switch to last song playlist
+        const playlistToUse = this.switchToLastsSongs ? LAST_SONGS_PLAYLIST : PLAYLIST
+        // we check if we have to take the next song
         if (currentSongSnapshot.exists || (this.switchToLastsSongs && !this.resetIndexPlayList)) {
           const currentSongInFirebase = currentSongSnapshot.data()
           const index = nextSong
@@ -226,12 +249,19 @@ class Game {
       })
   }
 
+  /**
+   * Store in case of countdown the current song. At the end, return the song
+   *
+   * Get the song on server in case of device
+   *
+   * @param {Object} objectSong
+   */
   persistOrGetSongToDataBase(objectSong) {
     // We only save datas of song (time of start) if we're on the countdown screen
     if (this.countDownMode) {
       return this.firestoreDB
         .collection(COLLECTION_SONGS)
-        .doc('currentSong')
+        .doc(DOCUMENT_CURRENT_SONG)
         .set({
           songToPlay: objectSong.songToPlay,
           index: objectSong.index,
@@ -240,57 +270,75 @@ class Game {
         .then(_ =>
           this.firestoreDB
             .collection(COLLECTION_SONGS)
-            .doc('currentSong')
+            .doc(DOCUMENT_CURRENT_SONG)
             .get(),
         )
         .then(currentSongSnapshot => currentSongSnapshot.data())
     } else {
       return this.firestoreDB
         .collection(COLLECTION_SONGS)
-        .doc('currentSong')
+        .doc(DOCUMENT_CURRENT_SONG)
         .get()
         .then(currentSongSnapshot => currentSongSnapshot.data())
     }
   }
 
+  /**
+   * Listen to change of song to know what to show on screen
+   */
   listenToChange() {
-    if (!this.countDownMode) {
-      // If we're not on countdown mode, we have to listen to change of songs
-      this.firestoreDB
-        .collection(COLLECTION_SONGS)
-        .doc('currentSong')
-        .onSnapshot(
-          {
-            includeMetadataChanges: true,
-          },
-          currentSongSnapshot => {
-            const dataWrite = currentSongSnapshot.data()
-            if (!dataWrite) {
-              return
-            }
-            this.toFastForloadingSong = false
-            this.gameView.setCurrentSong(dataWrite, true)
-            if (!dataWrite.startCountDown) {
-              this.loadSong(dataWrite).then(objectSong => {
-                this.objectSongComplete = objectSong
-                if (this.toFastForloadingSong) {
-                  this.playSongAndDisplayNote(this.objectSongComplete)
-                }
-              })
-              // nothing to do here
-              return
-            }
-            this.toFastForloadingSong = !this.objectSongComplete
-            this.gameView.resetScore()
+    // If we're not on countdown mode, we have to listen to change of songs
+    this.firestoreDB
+      .collection(COLLECTION_SONGS)
+      .doc(DOCUMENT_CURRENT_SONG)
+      .onSnapshot(
+        {
+          includeMetadataChanges: true,
+        },
+        currentSongSnapshot => {
+          // Each time a change is done we look at it
+          const dataWrite = currentSongSnapshot.data()
+          if (!dataWrite) {
+            // We return if the currentSong doc was delete
+            return
+          }
+          // Flag to now if the write of song was faster than the load of the song (midi)
+          this.toFastForloadingSong = false
+          // We display the correct name on screen
+          this.gameView.setCurrentSong(dataWrite, true)
+          // StartCountDown is an attribute only set when we know the time of start of a song
+          // So, if it's false it means that we just know that a new song will be played and
+          // we start to load it
+          if (!dataWrite.startCountDown) {
+            this.loadSong(dataWrite).then(objectSong => {
+              // We store the object completed by midi informations
+              this.objectSongComplete = objectSong
+              if (this.toFastForloadingSong) {
+                // If the write with the time of start was done before the end of this call
+                // We have to start the song
+                this.playSongAndDisplayNote(this.objectSongComplete)
+              }
+            })
+            // nothing to do here
+            return
+          }
+          // by default, toFastForloadingSong is false
+          this.toFastForloadingSong = !this.objectSongComplete
+          // When we know that the song will start, we reset the score
+          this.gameView.resetScore()
 
-            if (this.objectSongComplete) {
-              this.playSongAndDisplayNote(this.objectSongComplete)
-            }
-          },
-        )
-    }
+          if (this.objectSongComplete) {
+            this.playSongAndDisplayNote(this.objectSongComplete)
+          }
+        },
+      )
   }
 
+  /**
+   * Use by countdown to watch the top 10 of score for a song
+   *
+   * @param {Object} objectSong
+   */
   listenToScoreForSong(objectSong) {
     return new Promise((resolve, reject) => {
       // If we have already set the listener for scores, we have to unsubcribe
@@ -310,6 +358,7 @@ class Game {
           snapshot.forEach(change => {
             userArray.push(change.data())
           })
+          // We send the highscores to display
           if (this.gameView) {
             this.gameView.setHighScores(userArray)
           }
@@ -318,6 +367,9 @@ class Game {
     })
   }
 
+  /**
+   * Method that initialize the board (canvas)
+   */
   createGameView() {
     // SCENE SIZE
     let width = window.innerWidth,
@@ -366,6 +418,11 @@ class Game {
       .set({ pseudo: this.pseudo, score })
   }
 
+  /**
+   * Start the song and will call the callback when the song is terminated
+   *
+   * @param {function} callbackEndMusic
+   */
   playMusic(callbackEndMusic) {
     if (this.countDownMode) {
       return this.audioPlayer.play(DEBUG_MUTE, callbackEndMusic)
@@ -374,7 +431,12 @@ class Game {
     }
   }
 
-  addMusic(objectSong) {
+  /**
+   * Load the song in the player (only for countdown)
+   *
+   * @param {*} objectSong
+   */
+  loadMusic(objectSong) {
     // We only play music if we have the countdown
     if (this.countDownMode) {
       return this.audioPlayer
@@ -385,6 +447,11 @@ class Game {
     }
   }
 
+  /**
+   * Load the midi files and extract all the datas mandatory to play the notes (timing, frets, ...)
+   *
+   * @param {object} objectSong
+   */
   loadMidi(objectSong) {
     return new Promise((resolve, reject) => {
       Midi.fromUrl(`${location.origin}/assets/songs/${objectSong.songToPlay.path}/notes.mid`).then(
@@ -400,6 +467,7 @@ class Game {
             objectSong,
           )
 
+          // Mapping of note according to ask difficulty
           const noteMap = {
             //
             96: {
@@ -488,6 +556,7 @@ class Game {
           for (let i = 70; i <= 110; i++) {
             mapNote[i] = 0
           }
+          // We will complete the current song with all the "ticks" (note at the right time)
           midi.tracks.forEach(track => {
             if (
               track.name === 'PART GUITAR' ||
@@ -518,15 +587,22 @@ class Game {
               })
             }
           })
-          console.log('midi object : ', midi)
-          console.log(objectSongCopy)
-          console.table(mapNote)
+          //console.log('midi object : ', midi)
+          //console.log(objectSongCopy)
+
+          // this console.table will help us to know which difficulty are available on song
+          //console.table(mapNote)
           resolve(objectSongCopy)
         },
       )
     })
   }
 
+  /**
+   * method called when the timer send events
+   *
+   * @param {string} state
+   */
   callbackTimer(state) {
     switch (state.type) {
       case 'time':
@@ -543,7 +619,7 @@ class Game {
           this.gameView.resetSong()
           this.audioPlayer.stop()
           this.audioPlayer.manageVolumeFromPercent(100)
-          this.startGame(true)
+          this.startSong(true)
         } else if (this.audioPlayer) {
           this.audioPlayer.manageSoundVolume(state.value.diff)
         }
