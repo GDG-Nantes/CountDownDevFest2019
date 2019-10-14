@@ -3,6 +3,10 @@ body {
   font-family: 'Special Elite', cursive !important;
 }
 
+input {
+  font-family: 'Special Elite', cursive !important;
+}
+
 #game-canvas {
   position: relative;
   height: 100%;
@@ -29,6 +33,7 @@ body {
 .game-logo {
   grid-area: logo;
   text-align: center;
+  margin-top: 20px;
 }
 
 .countdown-wrapper {
@@ -37,6 +42,19 @@ body {
   right: 0;
   top: 40%;
   display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3em;
+  font-weight: bold;
+  text-align: center;
+}
+
+.multiplier-wrapper {
+  display: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 35%;
   justify-content: center;
   align-items: center;
   font-size: 3em;
@@ -84,6 +102,16 @@ body {
   text-align: center;
 }
 
+.game-logo2-wrapper {
+  display: none;
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 10px;
+  text-align: center;
+  pointer-events: none;
+}
+
 .game-details-center {
   grid-area: song;
   display: flex;
@@ -94,8 +122,6 @@ body {
   border-radius: 20px;
 }
 
-.score,
-.streak,
 .multiplier,
 .max-streak,
 .current-song {
@@ -108,12 +134,24 @@ body {
     display: none;
   }
 
+  .game-logo {
+    display: none;
+  }
+
   .scores-wrapper {
     display: none;
   }
 
   .join-wrapper {
     display: none;
+  }
+
+  .game-logo2-wrapper {
+    display: block;
+  }
+
+  .multiplier-wrapper {
+    display: block;
   }
 
   .game-details {
@@ -129,29 +167,51 @@ body {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
-    width: 90%;
-    height: auto;
+    width: 100%;
     border-radius: 0;
-    padding: 5px 20px;
-  }
-
-  .game-details-left > * {
-    font-size: 1.2em;
-    width: 50%;
   }
 
   .game-details-center {
     width: 90%;
     height: auto;
-    padding: 15px 20px;
+    padding: 30px 5px;
     border-radius: 0;
     line-height: 2.5em;
-    padding: 5px 20px;
+  }
+
+  .score {
+    background: #444;
+    text-align: left;
+    font-size: 30px;
+    line-height: 40px;
+    width: 40%;
+    padding-top: 13px;
+    padding-left: 13px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border: 2px solid white;
+    border-left: none;
+    opacity: 0.8;
+  }
+
+  .streak {
+    background: #444;
+    text-align: right;
+    font-size: 30px;
+    line-height: 40px;
+    width: 40%;
+    padding-top: 13px;
+    padding-right: 13px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    border: 2px solid white;
+    border-right: none;
+    opacity: 0.8;
   }
 
   .game-details-center > h1 {
     margin: 0;
-    font-size: 1.5em;
+    font-size: 2em;
     text-align: center;
   }
 }

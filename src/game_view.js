@@ -190,7 +190,7 @@ class GameView {
   }
 
   setCurrentSong(objectSong, loading) {
-    this.gameNotes.setCurrentSong(objectSong.songToPlay.name + (loading ? '  loading...' : ''))
+    this.gameNotes.setCurrentSong(loading ? 'loading...' : objectSong.songToPlay.name)
     return undefined
   }
 
