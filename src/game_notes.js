@@ -53,11 +53,11 @@ class GameNotes {
 
   incrementScore() {
     this.multiplier = 1
-    if (this.hits === 30) {
+    if (this.hits >= 30) {
       this.multiplier = 4
-    } else if (this.hits === 20) {
+    } else if (this.hits >= 20) {
       this.multiplier = 3
-    } else if (this.hits === 10) {
+    } else if (this.hits >= 10) {
       this.multiplier = 2
     }
     this.score += 100 * Number(this.multiplier)
