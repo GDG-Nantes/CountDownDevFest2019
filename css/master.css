@@ -356,7 +356,8 @@ input {
 }
 
 .instructions-logo {
-  margin-bottom: 3em;
+  margin-bottom: 2em;
+  margin-top: 3em;
 }
 
 .instructions-validate {
@@ -380,7 +381,7 @@ input {
   height: 2em;
   background: red;
   width: 100%;
-  margin: 1em;
+  margin: 0 1em;
   border-radius: 5px;
   padding: 0.5em;
 }
