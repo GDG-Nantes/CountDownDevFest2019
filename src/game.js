@@ -16,7 +16,7 @@ const COLLECTION_SONGS = 'songs'
 const DOCUMENT_CURRENT_SONG = 'currentSong'
 // Number of note to show (1 -> 5) : default 3
 const NOTE_TO_SHOW = 3
-const DEBUG_MUTE = true // Default = false; true if you don't want the sound
+const DEBUG_MUTE = false // Default = false; true if you don't want the sound
 const timeBeforeLastSongs = 4 * 60 * 1000 + 52 * 1000 + 12 * 1000 // 4 Minute 52 + 12s (7s of delay + 5s of dropdown song)
 const dropTimeForLastSong = 5 * 1000 // 5 sec
 
