@@ -16,15 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
   const instructionElt = document.querySelector('.instructions')
   const closeInstructionElt = document.querySelector('.close-instructions')
 
+  const inputElt = document.getElementById('pseudo')
+  if (countDownMode) {
+    inputElt.setAttribute('type', 'password')
+  }
+
   closeInstructionElt.addEventListener('click', _ => {
-    toggleFullScreen()
-    instructionElt.style.display = 'none'
-    const input = document.getElementById('pseudo').value
+    const input = inputElt.value
     game.setPseudo(input)
-    game.startSong()
-    if (!countDownMode) {
+
+    if (!input || input.length === 0 || input.trim().length === 0) {
+      document.getElementById('error-message').style.display = ''
+      return
+    }
+
+    // we check if the pwd is correct of if the user enter a name
+    if (countDownMode) {
+      fetch(`https://us-central1-devfesthero.cloudfunctions.net/app/pwd?pwd=${input}`).then(res => {
+        if (res.status === 200) {
+          instructionElt.style.display = 'none'
+          game.startSong()
+          toggleFullScreen()
+        } else {
+          document.getElementById('error-pwd').style.display = ''
+        }
+      })
+    } else if (input && input.length > 0) {
+      instructionElt.style.display = 'none'
+      game.startSong()
       // We listen to change in firebase to change of song
       game.listenToChange()
+      toggleFullScreen()
     }
   })
 
