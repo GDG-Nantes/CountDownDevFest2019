@@ -19,11 +19,9 @@ body {
   right: 0;
   color: white;
   display: grid;
-  grid-template-columns: 2fr 1fr;
   grid-template-areas:
-    'logo scores'
-    'countdown scores'
-    'song scores';
+    'logo'
+    'song';
   padding: 0;
   background: rgba(0, 0, 0, 0.75);
 }
@@ -34,7 +32,10 @@ body {
 }
 
 .countdown-wrapper {
-  grid-area: countdown;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 40%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -47,21 +48,40 @@ body {
   display: none;
 }
 
-.game-details-right {
-  grid-area: scores;
+.scores-wrapper {
+  position: absolute;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   padding: 15px 20px;
   border-radius: 20px;
-  height: 300px;
   overflow: hidden;
+  color: white;
+  height: 60%;
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .highscores {
   font-size: 1.3em;
   line-height: 1.3em;
   margin: 0;
+}
+
+.join-wrapper {
+  position: absolute;
+  right: 0;
+  left: 0;
+  bottom: 0;
+}
+
+.join {
+  font-size: 1.8em;
+  line-height: 1.8em;
+  margin: 0;
+  color: white;
+  text-align: center;
 }
 
 .game-details-center {
@@ -88,7 +108,11 @@ body {
     display: none;
   }
 
-  .game-details-right {
+  .scores-wrapper {
+    display: none;
+  }
+
+  .join-wrapper {
     display: none;
   }
 
