@@ -4,6 +4,7 @@
 class Touch {
   constructor() {
     this._pressed = {}
+    this._pressedStart = {}
     this._pressedVisually = {}
     this.pos = {
       1: 65,
@@ -44,6 +45,17 @@ class Touch {
     })
   }
 
+  isPressTooLong(time) {
+    const now = Date.now()
+    for (let key in this._pressedStart) {
+      const value = this._pressedStart[key]
+      if (now - value > time) {
+        return true
+      }
+    }
+    return false
+  }
+
   isDown(keyCode) {
     return this._pressed[keyCode]
   }
@@ -53,17 +65,20 @@ class Touch {
   }
 
   onTouchdown(e) {
-    console.log(e)
+    e.preventDefault()
     const filtersTouchs = this.checkTouch(e.touches)
     let keyPressed = []
     if (this.checkTouchAnote(filtersTouchs).length > 0) {
       keyPressed.push(this.A)
+      if (!this._pressedStart[e.keyCode]) this._pressedStart[this.A] = Date.now()
     }
     if (this.checkTouchSnote(filtersTouchs).length > 0) {
       keyPressed.push(this.S)
+      if (!this._pressedStart[e.keyCode]) this._pressedStart[this.S] = Date.now()
     }
     if (this.checkTouchDnote(filtersTouchs).length > 0) {
       keyPressed.push(this.D)
+      if (!this._pressedStart[e.keyCode]) this._pressedStart[this.D] = Date.now()
     }
     if (keyPressed.length > 0) {
       keyPressed.map(key => {
@@ -74,17 +89,19 @@ class Touch {
   }
 
   onTouchup(e) {
-    console.log(e)
     const filtersTouchs = this.checkTouch(e.changedTouches)
     let keyPressed = []
     if (this.checkTouchAnote(filtersTouchs).length > 0) {
       keyPressed.push(this.A)
+      delete this._pressedStart[this.A]
     }
     if (this.checkTouchSnote(filtersTouchs).length > 0) {
       keyPressed.push(this.S)
+      delete this._pressedStart[this.S]
     }
     if (this.checkTouchDnote(filtersTouchs).length > 0) {
       keyPressed.push(this.D)
+      delete this._pressedStart[this.D]
     }
     if (keyPressed.length > 0) {
       keyPressed.map(key => {
