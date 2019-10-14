@@ -128,92 +128,91 @@ input {
   font-size: 28px;
 }
 
-@media only screen and (max-width: 768px) {
-  /* For mobile phones: */
-  .countdown-wrapper {
-    display: none;
-  }
 
-  .game-logo {
-    display: none;
-  }
+/* For mobile phones: */
+.mobile-mode .countdown-wrapper {
+  display: none;
+}
 
-  .scores-wrapper {
-    display: none;
-  }
+.mobile-mode .game-logo {
+  display: none;
+}
 
-  .join-wrapper {
-    display: none;
-  }
+.mobile-mode .scores-wrapper {
+  display: none;
+}
 
-  .game-logo2-wrapper {
-    display: block;
-  }
+.mobile-mode .join-wrapper {
+  display: none;
+}
 
-  .multiplier-wrapper {
-    display: block;
-  }
+.mobile-mode .game-logo2-wrapper {
+  display: block;
+}
 
-  .game-details {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-direction: column;
-    padding: 0;
-  }
+.mobile-mode .multiplier-wrapper {
+  display: block;
+}
 
-  .game-details-left {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 100%;
-    border-radius: 0;
-  }
+.mobile-mode .game-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  padding: 0;
+}
 
-  .game-details-center {
-    width: 90%;
-    height: auto;
-    padding: 30px 5px;
-    border-radius: 0;
-    line-height: 2.5em;
-  }
+.mobile-mode .game-details-left {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  border-radius: 0;
+}
 
-  .score {
-    background: #444;
-    text-align: left;
-    font-size: 30px;
-    line-height: 40px;
-    width: 40%;
-    padding-top: 13px;
-    padding-left: 13px;
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-    border: 2px solid white;
-    border-left: none;
-    opacity: 0.8;
-  }
+.mobile-mode .game-details-center {
+  width: 90%;
+  height: auto;
+  padding: 30px 5px;
+  border-radius: 0;
+  line-height: 2.5em;
+}
 
-  .streak {
-    background: #444;
-    text-align: right;
-    font-size: 30px;
-    line-height: 40px;
-    width: 40%;
-    padding-top: 13px;
-    padding-right: 13px;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    border: 2px solid white;
-    border-right: none;
-    opacity: 0.8;
-  }
+.mobile-mode .score {
+  background: #444;
+  text-align: left;
+  font-size: 30px;
+  line-height: 40px;
+  width: 40%;
+  padding-top: 13px;
+  padding-left: 13px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  border: 2px solid white;
+  border-left: none;
+  opacity: 0.8;
+}
 
-  .game-details-center > h1 {
-    margin: 0;
-    font-size: 2em;
-    text-align: center;
-  }
+.mobile-mode .streak {
+  background: #444;
+  text-align: right;
+  font-size: 30px;
+  line-height: 40px;
+  width: 40%;
+  padding-top: 13px;
+  padding-right: 13px;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  border: 2px solid white;
+  border-right: none;
+  opacity: 0.8;
+}
+
+.mobile-mode .game-details-center > h1 {
+  margin: 0;
+  font-size: 2em;
+  text-align: center;
 }
 
 .game-progress {
