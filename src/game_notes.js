@@ -5,7 +5,7 @@ class GameNotes {
     this.key = key
 
     this.scoreEl = document.getElementsByClassName('score')[0]
-    this.maxStreakEl = document.getElementsByClassName('max-streak')[0]
+    // this.maxStreakEl = document.getElementsByClassName('max-streak')[0]
     this.streakEl = document.getElementsByClassName('streak')[0]
     this.multiplierEl = document.getElementsByClassName('multiplier')[0]
     this.countdownEl = document.getElementsByClassName('countdown')[0]
@@ -78,10 +78,10 @@ class GameNotes {
   }
 
   refreshScore() {
-    this.scoreEl.innerHTML = `Score: ${this.score}`
-    this.maxStreakEl.innerHTML = `Max Streak: ${this.maxStreak}`
-    this.streakEl.innerHTML = `Streak: ${this.hits}`
-    this.multiplierEl.innerHTML = `Multiplier: ${this.multiplier}X`
+    this.scoreEl.innerHTML = `${this.score}`
+    // this.maxStreakEl.innerHTML = `Max Streak: ${this.maxStreak}`
+    this.streakEl.innerHTML = `${this.hits}`
+    this.multiplierEl.innerHTML = `${this.multiplier}X`
   }
 
   setTime(timeData) {

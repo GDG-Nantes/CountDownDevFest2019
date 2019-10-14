@@ -94,7 +94,7 @@ class GameView {
       '',
       '',
       new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load('photos/stage.jpeg'),
+        map: new THREE.TextureLoader().load('photos/danny-howe-74kShnX5zZI-unsplash.jpg'),
         side: THREE.DoubleSide,
       }),
     ]
@@ -149,9 +149,9 @@ class GameView {
     this.note.radius = 7.5
 
     this.note.colors = []
-    this.note.colors.push(0x4c7048) //  Green
-    if (this.noteToShow > 1) this.note.colors.push(0xda3a3c) // Red
-    if (this.noteToShow > 2) this.note.colors.push(0xffeb3b) // Yellow
+    this.note.colors.push(0x008000) //  Green
+    if (this.noteToShow > 1) this.note.colors.push(0xff0000) // Red
+    if (this.noteToShow > 2) this.note.colors.push(0xfeff00) // Yellow
     if (this.noteToShow > 3) this.note.colors.push(0x3f51b5) // Blue
     if (this.noteToShow > 4) this.note.colors.push(0xff5722) // Orange
     this.note.colors.push(0xffffff) // White - selected
@@ -190,7 +190,7 @@ class GameView {
   }
 
   setCurrentSong(objectSong, loading) {
-    this.gameNotes.setCurrentSong(objectSong.songToPlay.name + (loading ? '  loading...' : ''))
+    this.gameNotes.setCurrentSong(loading ? 'loading...' : objectSong.songToPlay.name)
     return undefined
   }
 

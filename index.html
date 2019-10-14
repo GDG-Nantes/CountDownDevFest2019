@@ -6,8 +6,7 @@
     <script type="text/javascript" src="https://unpkg.com/tone@13.4.9/build/Tone.js"></script>
     <script type="text/javascript" src="https://unpkg.com/@tonejs/ui@0.0.8/build/tonejs-ui.js"></script>
     <script type="text/javascript" src="https://unpkg.com/@tonejs/midi"></script>
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Bangers" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">
     <meta name="viewport" content="width=device-width,initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   </head>
   <body>
@@ -16,57 +15,76 @@
     <script type="text/javascript" src="./bundle.js"></script>
     <div id="game-canvas">
         <div class="game-details">
-          <div class="game-details-left">
-            <h1 class="score">Score: 0</h1>
-            <h1 class="max-streak">Max Streak: 0</h1>
-            <h1 class="multiplier">Multiplier: 1X</h1>
-            <h1 class="streak">Streak: 0</h1>
+          <div class="game-logo">
+            <img src="./photos/logo-devfest-white.png" width="320px" />
           </div>
           <div class="game-details-center">
-            <h1 class="countdown hide-mobile">10:00:00</h1>
             <h1 class="current-song"></h1>
           </div>
-          <div class="game-details-right hide-mobile">
-            <h1>Best rockers</h1>
-            <h1 class="highscore-player" id="player-01">test</h1>
-            <h1 class="highscore-player" id="player-02">test</h1>
-            <h1 class="highscore-player" id="player-03">test</h1>
-            <h1 class="highscore-player" id="player-04">test</h1>
-            <h1 class="highscore-player" id="player-05">test</h1>
-            <h1 class="highscore-player" id="player-06">test</h1>
-            <h1 class="highscore-player" id="player-07">test</h1>
-            <h1 class="highscore-player" id="player-08">test</h1>
-            <h1 class="highscore-player" id="player-09">test</h1>
-            <h1 class="highscore-player" id="player-10">test</h1>
+          <div class="game-details-left">
+            <div class="score">Score: 0</div>
+            <div class="streak">Streak: 0</div>
           </div>
         </div>
 
+        <div class="countdown-wrapper">
+          <div class="countdown">10:00:00</div>
+        </div>  
+
+        <div class="multiplier-wrapper">
+          <h1 class="multiplier">Multiplier: 1X</h1>
+        </div>  
+
+        <div class="scores-wrapper">
+          <h1>Best rockers</h1>
+          <ol class="highscores">
+            <li class="highscore-player" id="player-01">test</li>
+            <li class="highscore-player" id="player-02">test</li>
+            <li class="highscore-player" id="player-03">test</li>
+            <li class="highscore-player" id="player-04">test</li>
+            <li class="highscore-player" id="player-05">test</li>
+            <li class="highscore-player" id="player-06">test</li>
+            <li class="highscore-player" id="player-07">test</li>
+            <li class="highscore-player" id="player-08">test</li>
+            <li class="highscore-player" id="player-08">test</li>
+            <li class="highscore-player" id="player-10">test</li>
+          </ol>
+        </div>
+
+        <div class="game-logo2-wrapper">
+          <img src="./photos/logo-devfest-white.png" width="150px" />
+        </div>
+
+        <div class="join-wrapper">
+          <div class="join">Join the party!</div>
+          <div class="join">https://devfesthero.web.app</div>
+        </div>  
+
         <div class="instructions">
-          <div class="close-instructions">
-            <h1>X</h1>
-            <h2>(close instructions)</h2>
+          <img class="instructions-logo" src="./photos/logo-devfest-white.png" height="70px"/>
+          <div class="instructions-pseudo">
+            <input id="pseudo" class="instructions-input" value="" placeholder="Rocker Name">
           </div>
-          <ul class="instructions-text">
+          <div class="instructions-text">
             <h1>Instructions</h1>
-            <li>As the colored notes move to the circles at the bottom of the fret board, hit the corresponding keys in sequence to score points!</li>
-            <li>Score enough notes in a row, and your score multiplier will increase!</li>
-            <li>To take a look around, click the button in the lower left hand corner.</li>
-          </ul>
+            <p>As the colored notes move to the circles at the bottom of the fret board, touch the corresponding note in sequence to score points!</p>
+            <p>Score enough notes in a row, and your score multiplier will increase!</p>
+          </div>
           <ul class="letters">
             <li class="green">A</li>
             <li class="red">S</li>
             <li class="yellow">D</li>
-            <li class="blue">F</li>
-            <li class="orange">G</li>
           </ul>
-          <input id="pseudo" value="" placeholder="pseudo">
+          <div class="instructions-validate" role="button">
+            <div class="close-instructions" role="button">
+              Let's rock!
+            </div>
+          </div>
         </div>
 
       </div>
     </div>
     <div id="song"></div>
     <div id="opacity" style="display:none"></div>
-
-
   </body>
 </html>
