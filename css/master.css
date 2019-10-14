@@ -1,6 +1,6 @@
 body {
   margin: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Special Elite', cursive !important;
 }
 
 #game-canvas {
@@ -20,9 +20,10 @@ body {
   color: white;
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-areas: "logo scores"
-                       "countdown scores"
-                       "song scores";
+  grid-template-areas:
+    'logo scores'
+    'countdown scores'
+    'song scores';
   padding: 0;
   background: rgba(0, 0, 0, 0.75);
 }
@@ -223,7 +224,6 @@ body {
 }
 
 .title {
-  font-family: 'Bangers', sans-serif;
   letter-spacing: 2.5px;
 }
 
@@ -270,7 +270,6 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-family: 'Roboto', sans-serif;
 }
 
 .instructions-logo {
@@ -329,7 +328,7 @@ body {
 }
 
 .instructions-input {
-  padding: .5em;
+  padding: 0.5em;
   font-size: 1.3em;
   border: 0;
   border-radius: 5px;
