@@ -288,8 +288,6 @@ class GameView {
   sceneUpdateNew() {
     this.processTicks()
 
-    this.checkPressLongKeys()
-
     this.spheres.forEach(sphere => {
       if (sphere.noteFinished) return
 
@@ -323,10 +321,7 @@ class GameView {
   checkPressLongKeys() {
     const pressTooLong = this.key.isPressTooLong(1000)
     const touchTooLong = this.touch.isPressTooLong(1000)
-    if (pressTooLong || touchTooLong) {
-      console.log('Press/Touch too long, so reset.');
-      this.gameNotes.resetScores()
-    }
+    return pressTooLong || touchTooLong
   }
 
   processNotePressed(noteMesh, timeEllapseForNote) {
@@ -346,9 +341,13 @@ class GameView {
         //   } / timeEllapse : ${timeEllapseForNote}`,
         // )
         noteMesh.pressed = true
-        this.gameNotes.incrementHits()
-        this.gameNotes.incrementScore()
-        this.callBackIncScore(this.objectSong, this.gameNotes.getScore())
+        if (this.checkPressLongKeys()) {
+          this.gameNotes.resetHits()
+        } else {
+          this.gameNotes.incrementHits()
+          this.gameNotes.incrementScore()
+          this.callBackIncScore(this.objectSong, this.gameNotes.getScore())
+        }
       }
     } else if (noteMesh.noteFinished && !noteMesh.pressed) {
       // console.error(
