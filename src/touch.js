@@ -7,11 +7,11 @@ class Touch {
     this._pressedStart = {}
     this._pressedVisually = {}
     this.pos = {
-      1: 65,
+      1: 81,
       2: 83,
       3: 68,
     }
-    this.A = 65 // songNote.pos: 1
+    this.A = 81 // songNote.pos: 1
     this.S = 83 // songNote.pos: 2
     this.D = 68 // songNote.pos: 3
 
