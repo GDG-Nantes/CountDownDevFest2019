@@ -21,7 +21,15 @@ document.addEventListener('DOMContentLoaded', () => {
     inputElt.setAttribute('type', 'password')
   }
 
-  closeInstructionElt.addEventListener('click', _ => {
+  inputElt.addEventListener('keydown', e => {
+    if (e.keyCode === 13) {
+      startScreenGame()
+    }
+  })
+
+  closeInstructionElt.addEventListener('click', startScreenGame)
+
+  function startScreenGame() {
     const input = inputElt.value
     game.setPseudo(input)
 
@@ -48,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
       game.listenToChange()
       toggleFullScreen()
     }
-  })
+  }
 
   function toggleFullScreen() {
     const elem = document.getElementById('game-canvas')
