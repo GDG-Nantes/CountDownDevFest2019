@@ -2,19 +2,18 @@
 
 export const PLAYLIST = [
   {
-    // Mythique et pas compliqué
-    path: `3.5_Paint_It,_Black_–_The_Rolling_Stones`,
-    name: 'The Rolling Stones - Paint It, Black',
-    difficulty: 'EASY_DIFFICULTY',
+    // Morceau assez sympa et pas trop dur
+    path: `Sunday_Bloody_Sunday`,
+    name: 'U2 - Sunday Bloody Sunday',
+    difficulty: 'AMAZING_DIFFICULTY',
     song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
+      song: 'guitar.ogg',
     },
   },
   {
-    // Simple et efficace
-    path: `iloverockandroll`,
-    name: 'Joan Jett - I Love Rock And Roll',
+    // Mythique et pas compliqué
+    path: `3.5_Paint_It,_Black_–_The_Rolling_Stones`,
+    name: 'The Rolling Stones - Paint It, Black',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -32,19 +31,9 @@ export const PLAYLIST = [
     },
   },
   {
-    // Simple et sympa
-    path: `takemeout`,
-    name: 'Franz Ferdinand - Take me out',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
-  {
-    // Beaucoup de notes et pas toujours évident mais reste sympa :)
-    path: `Evanescence_-_Bring_me_to_life`,
-    name: 'Evanescence - Bring me to life',
+    // Simple et efficace
+    path: `iloverockandroll`,
+    name: 'Joan Jett - I Love Rock And Roll',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -62,10 +51,10 @@ export const PLAYLIST = [
     },
   },
   {
-    // Efficace et pas trop dur
-    path: `queen_-_bohemian`,
-    name: 'Queen - Bohemian Rapsody',
-    difficulty: 'AMAZING_DIFFICULTY',
+    // Simple et sympa
+    path: `takemeout`,
+    name: 'Franz Ferdinand - Take me out',
+    difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
       guitar: 'guitar.ogg',
@@ -79,6 +68,45 @@ export const PLAYLIST = [
     song: {
       song: 'song.ogg',
       guitar: 'guitar.ogg',
+    },
+  },
+  {
+    // Beaucoup de notes et pas toujours évident mais reste sympa :)
+    path: `Evanescence_-_Bring_me_to_life`,
+    name: 'Evanescence - Bring me to life',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    // Mythique et pas compliqué
+    path: `Guns__N_Roses_-_Sweet_Child__O_Mine`,
+    name: "Guns 'N Roses - Sweet Child 'O Mine",
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    // Efficace et pas trop dur
+    path: `queen_-_bohemian`,
+    name: 'Queen - Bohemian Rapsody',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    // Début hyper long mais ça claque (synchro bonne ici, morceau un peu dur, et surtout très long)
+    path: `Dire_Straits_-_Money_for_Nothing`,
+    name: 'Dire staits - Money for nothing',
+    difficulty: 'AMAZING_DIFFICULTY',
+    song: {
+      song: 'guitar.ogg',
     },
   },
   {
@@ -102,15 +130,6 @@ export const PLAYLIST = [
     },
   },
   {
-    // Morceau assez sympa et pas trop dur
-    path: `Sunday_Bloody_Sunday`,
-    name: 'U2 - Sunday Bloody Sunday',
-    difficulty: 'AMAZING_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
-    },
-  },
-  {
     // Morceau sympa avec plein de notes et pas trop compliqué
     path: `4.5_Even_Flow_-_Pearl_Jam`,
     name: 'Pearl Jam - Even Flow',
@@ -120,7 +139,6 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-
   {
     // Pas trop dur mais beaucoup de notes
     path: `4.1_Paranoid_–_Black_Sabbath`,
@@ -132,9 +150,9 @@ export const PLAYLIST = [
     },
   },
   {
-    // Sympa, facile mais peu être un peu trop calme ?
-    path: `killerqueen`,
-    name: 'Queen - Killer Queen',
+    // Très rapide mais pas forcément difficile
+    path: `messageinabottle`,
+    name: 'The Police - Message in a bottle',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -145,6 +163,16 @@ export const PLAYLIST = [
     // efficace et pas trop dur à suivre
     path: `killinginthenameof`,
     name: 'Rage against the machine - Killing in the name of',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'song.ogg',
+      guitar: 'guitar.ogg',
+    },
+  },
+  {
+    // Sympa, facile mais peu être un peu trop calme ?
+    path: `killerqueen`,
+    name: 'Queen - Killer Queen',
     difficulty: 'EASY_DIFFICULTY',
     song: {
       song: 'song.ogg',
@@ -171,16 +199,7 @@ export const PLAYLIST = [
       guitar: 'guitar.ogg',
     },
   },
-  {
-    // Très rapide mais pas forcément difficile
-    path: `messageinabottle`,
-    name: 'The Police - Message in a bottle',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
-    },
-  },
+
   {
     // Hyper répétitif (toujours des doubles notes)
     path: `Blink-182_-_All_the_Small_Things`,
@@ -231,16 +250,6 @@ export const PLAYLIST = [
     },
   },
   {
-    // Electro, pas trop rock et trop facile dans cette difficulté
-    path: `Aerodynamic`,
-    name: 'Daft Punk - Aerodynamic',
-    difficulty: 'EASY_DIFFICULTY',
-    song: {
-      song: 'Song.ogg',
-      guitar: 'Guitar.ogg',
-    },
-  },
-  {
     // Un peu vide en notes...
     path: `A_Kind_Of_Magic`,
     name: 'Queen - A Kind Of Magic',
@@ -257,25 +266,6 @@ export const PLAYLIST = [
     difficulty: 'AMAZING_DIFFICULTY',
     song: {
       song: 'guitar.ogg',
-    },
-  },
-  {
-    // Début hyper long mais ça claque (synchro bonne ici, morceau un peu dur, et surtout très long)
-    path: `Dire_Straits_-_Money_for_Nothing`,
-    name: 'Dire staits - Money for nothing',
-    difficulty: 'AMAZING_DIFFICULTY',
-    song: {
-      song: 'guitar.ogg',
-    },
-  },
-  {
-    // Sympa mais trop pop
-    path: `mich_-_beat`,
-    name: 'Michael Jackson - Beat it',
-    difficulty: 'MEDIUM_DIFFICULTY',
-    song: {
-      song: 'song.ogg',
-      guitar: 'guitar.ogg',
     },
   },
   {
@@ -326,13 +316,23 @@ export const PLAYLIST = [
     },
   },
   {
-    // Mythique et pas compliqué
-    path: `Guns__N_Roses_-_Sweet_Child__O_Mine`,
-    name: "Guns 'N Roses - Sweet Child 'O Mine",
-    difficulty: 'EASY_DIFFICULTY',
+    // Sympa mais trop pop
+    path: `mich_-_beat`,
+    name: 'Michael Jackson - Beat it',
+    difficulty: 'MEDIUM_DIFFICULTY',
     song: {
       song: 'song.ogg',
       guitar: 'guitar.ogg',
+    },
+  },
+  {
+    // Electro, pas trop rock et trop facile dans cette difficulté
+    path: `Aerodynamic`,
+    name: 'Daft Punk - Aerodynamic',
+    difficulty: 'EASY_DIFFICULTY',
+    song: {
+      song: 'Song.ogg',
+      guitar: 'Guitar.ogg',
     },
   },
 ]
