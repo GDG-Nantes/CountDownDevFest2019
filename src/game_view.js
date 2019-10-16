@@ -318,10 +318,29 @@ class GameView {
     })
   }
 
+  /**
+   * Check if a note is press since a long delay
+   */
   checkPressLongKeys() {
     const pressTooLong = this.key.isPressTooLong(1000)
     const touchTooLong = this.touch.isPressTooLong(1000)
     return pressTooLong || touchTooLong
+  }
+
+  /**
+   * Check if we're trying to press in the sametime the notes (try to cheat)
+   */
+  checkCheatNotes() {
+    let cheatKey = true
+    let cheatTouch = true
+    for (let posIdx = 1; posIdx <= this.noteToShow; posIdx++) {
+      cheatKey = cheatKey && this.key.isDownVisually(this.key.pos[posIdx])
+    }
+    for (let posIdx = 1; posIdx <= this.noteToShow; posIdx++) {
+      cheatTouch = cheatTouch && this.touch.isDownVisually(this.touch.pos[posIdx])
+    }
+
+    return cheatKey || cheatTouch
   }
 
   processNotePressed(noteMesh, timeEllapseForNote) {
@@ -341,7 +360,7 @@ class GameView {
         //   } / timeEllapse : ${timeEllapseForNote}`,
         // )
         noteMesh.pressed = true
-        if (this.checkPressLongKeys()) {
+        if (this.checkPressLongKeys() || this.checkCheatNotes()) {
           this.gameNotes.resetHits()
         } else {
           this.gameNotes.incrementHits()
