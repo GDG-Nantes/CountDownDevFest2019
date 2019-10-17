@@ -27,6 +27,7 @@ class Game {
     // Mappers (key : A/S/D/F/G and touch)
     this.key = new Key()
     this.touch = new Touch()
+    this.countDownOver = false
 
     // Flag to now if we have to switch to last songs playlist (linked to timeBeforeLastSongs)
     this.switchToLastsSongs = false
@@ -52,19 +53,21 @@ class Game {
     // We init the canvas
     this.createGameView()
 
-    // We init the Audio player
-    this.audioPlayer = new AudioPlayer()
-    // We start the timer (countdwon)
-    this.timer = new Timer(this.callbackTimer.bind(this))
-    // the html element that will be blank when we start the video
-    const opacityElt = document.getElementById('opacity')
-    // We init the video player
-    this.videoPlayer = new VideoPlayer(opacityElt, () => {
-      // console.debug('end');
-      setTimeout(() => {
-        // TODO (SHOW FINAL IMAGE)
-      }, 5000)
-    })
+    if (this.countDownMode) {
+      // We init the Audio player
+      this.audioPlayer = new AudioPlayer()
+      // We start the timer (countdwon)
+      this.timer = new Timer(this.callbackTimer.bind(this))
+      // the html element that will be blank when we start the video
+      const opacityElt = document.getElementById('opacity')
+      // We init the video player
+      this.videoPlayer = new VideoPlayer(opacityElt, () => {
+        // console.debug('end');
+        setTimeout(() => {
+          // TODO (SHOW FINAL IMAGE)
+        }, 5000)
+      })
+    }
   }
 
   /**
@@ -199,6 +202,9 @@ class Game {
    * @param {boolean} nextSong : true if we have to start the next song in playlist
    */
   startSong(nextSong) {
+    if (this.countDownOver) {
+      return
+    }
     // Each time a song start, we reset the board
     this.gameView.resetScore()
     // We frst request server to get the right song to play
@@ -298,6 +304,8 @@ class Game {
         currentSongSnapshot => {
           // Each time a change is done we look at it
           const dataWrite = currentSongSnapshot.data()
+          // console.log('Receive change of song')
+          // console.table(dataWrite)
           if (!dataWrite) {
             // We return if the currentSong doc was delete
             return
@@ -305,11 +313,13 @@ class Game {
           // Flag to now if the write of song was faster than the load of the song (midi)
           this.toFastForloadingSong = false
           // We display the correct name on screen
+          this.gameView.resetSong()
           this.gameView.setCurrentSong(dataWrite, true)
           // StartCountDown is an attribute only set when we know the time of start of a song
           // So, if it's false it means that we just know that a new song will be played and
           // we start to load it
           if (!dataWrite.startCountDown) {
+            this.objectSongComplete = undefined
             this.loadSong(dataWrite).then(objectSong => {
               // We store the object completed by midi informations
               this.objectSongComplete = objectSong
@@ -400,8 +410,6 @@ class Game {
       this.incrementeScore.bind(this),
     )
     this.gameView.setup()
-
-    this.timer
   }
 
   /**
@@ -454,6 +462,9 @@ class Game {
    */
   loadMidi(objectSong) {
     return new Promise((resolve, reject) => {
+      // console.log(
+      //   `Will load this midi file : ${location.origin}/assets/songs/${objectSong.songToPlay.path}/notes.mid`,
+      // )
       Midi.fromUrl(`${location.origin}/assets/songs/${objectSong.songToPlay.path}/notes.mid`).then(
         midi => {
           const objectSongCopy = Object.assign(
@@ -626,6 +637,7 @@ class Game {
         break
       case 'endCountDown':
         console.log('Times Up !')
+        this.countDownOver = true
         // Stop Music
         this.audioPlayer.stop()
         this.videoPlayer.resetVideo()

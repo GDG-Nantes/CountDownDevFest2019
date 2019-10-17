@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
       })
     } else if (input && input.length > 0) {
       instructionElt.style.display = 'none'
-      game.startSong()
+      //game.startSong()
       // We listen to change in firebase to change of song
       game.listenToChange()
       toggleFullScreen()

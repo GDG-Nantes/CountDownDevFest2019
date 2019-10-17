@@ -337,7 +337,7 @@ export const PLAYLIST = [
   },
 ]
 
-export const LASTS_SONGS_PLAYLIST = [
+export const LAST_SONGS_PLAYLIST = [
   {
     path: `ACDC_-_Thunderstruck`,
     name: 'ACDC - Thunderstruck',
