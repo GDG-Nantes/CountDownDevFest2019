@@ -6,7 +6,7 @@ import Touch from './touch'
 import GameView from './game_view'
 import Timer from './timer'
 import { AudioPlayer } from './audio.js'
-import { VideoPlayer } from './video_player'
+//import { VideoPlayer } from './video_player'
 import { PLAYLIST, LAST_SONGS_PLAYLIST } from './playlist'
 import undefined from 'firebase/firestore'
 
@@ -28,6 +28,7 @@ class Game {
     this.key = new Key()
     this.touch = new Touch()
     this.countDownOver = false
+    this.midiLoad = false // True if we already try to load the midi file
 
     // Flag to now if we have to switch to last songs playlist (linked to timeBeforeLastSongs)
     this.switchToLastsSongs = false
@@ -61,12 +62,12 @@ class Game {
       // the html element that will be blank when we start the video
       const opacityElt = document.getElementById('opacity')
       // We init the video player
-      this.videoPlayer = new VideoPlayer(opacityElt, () => {
-        // console.debug('end');
-        setTimeout(() => {
-          // TODO (SHOW FINAL IMAGE)
-        }, 5000)
-      })
+      // this.videoPlayer = new VideoPlayer(opacityElt, () => {
+      //   // console.debug('end');
+      //   setTimeout(() => {
+      //     // TODO (SHOW FINAL IMAGE)
+      //   }, 5000)
+      // })
     }
   }
 
@@ -315,33 +316,38 @@ class Game {
           // We display the correct name on screen
           this.gameView.resetSong()
           this.gameView.setCurrentSong(dataWrite, true)
+          // by default, toFastForloadingSong is false
+          this.toFastForloadingSong = !this.objectSongComplete
           // StartCountDown is an attribute only set when we know the time of start of a song
           // So, if it's false it means that we just know that a new song will be played and
           // we start to load it
-          if (!dataWrite.startCountDown) {
+          if (!dataWrite.startCountDown || !this.midiLoad) {
+            this.midiLoad = true
             this.objectSongComplete = undefined
             this.loadSong(dataWrite).then(objectSong => {
               // We store the object completed by midi informations
               this.objectSongComplete = objectSong
               if (this.toFastForloadingSong) {
-                // If the write with the time of start was done before the end of this call
-                // We have to start the song
-                this.playSongAndDisplayNote(this.objectSongComplete)
+                this.showNotesForPlayer()
               }
             })
             // nothing to do here
             return
           }
-          // by default, toFastForloadingSong is false
-          this.toFastForloadingSong = !this.objectSongComplete
-          // When we know that the song will start, we reset the score
-          this.gameView.resetScore()
 
-          if (this.objectSongComplete) {
-            this.playSongAndDisplayNote(this.objectSongComplete)
-          }
+          this.showNotesForPlayer()
         },
       )
+  }
+
+  showNotesForPlayer() {
+    // When we know that the song will start, we reset the score
+    this.gameView.resetScore()
+
+    if (this.objectSongComplete) {
+      this.midiLoad = false
+      this.playSongAndDisplayNote(this.objectSongComplete)
+    }
   }
 
   /**
@@ -640,12 +646,12 @@ class Game {
         this.countDownOver = true
         // Stop Music
         this.audioPlayer.stop()
-        this.videoPlayer.resetVideo()
+        // this.videoPlayer.resetVideo()
         const opacityElt = document.getElementById('opacity')
         opacityElt.style.display = ''
         setTimeout(() => {
           opacityElt.classList.add('black')
-          setTimeout(() => this.videoPlayer.playVideo(), 4000)
+          //setTimeout(() => this.videoPlayer.playVideo(), 4000)
         }, 100)
         break
     }
