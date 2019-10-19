@@ -9,6 +9,7 @@ export class AudioPlayer {
       this.currentSourceGuitar = undefined
       this.buffer = undefined
       this.bufferGuitar = undefined
+      this.forcedStop = false
       this.gainSource = this.context.createGain() // Create gain for source (volume)
       this.gainSourceGuitar = this.context.createGain() // Create gain for source (volume)
       this.gainSource.connect(this.context.destination) // Connect gain to audio Context
@@ -85,6 +86,7 @@ export class AudioPlayer {
 
   play(mute, callbackEndMusic) {
     return new Promise((resolve, reject) => {
+      //this.stop()
       const source = this.context.createBufferSource() // creates a sound source
       let sourceGuitar = undefined // creates a sound source
       if (this.bufferGuitar) {
@@ -110,13 +112,20 @@ export class AudioPlayer {
       if (this.bufferGuitar) {
         this.currentSourceGuitar = sourceGuitar
       }
-      source.addEventListener('ended', _ => callbackEndMusic(true)) // plug the callback when the song is terminated
+      source.addEventListener('ended', _ => {
+        if (!this.forcedStop) {
+          callbackEndMusic(true)
+        } else {
+          this.forcedStop = false
+        }
+      }) // plug the callback when the song is terminated
       resolve({ source, sourceGuitar })
     })
   }
 
   stop() {
     if (this.currentSource && this.currentSource.stop) {
+      this.forcedStop = true
       this.currentSource.stop(0)
       if (this.bufferGuitar) {
         this.currentSourceGuitar.stop(0)
