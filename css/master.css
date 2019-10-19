@@ -44,7 +44,7 @@ input {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 3em;
+  font-size: 3.5em;
   font-weight: bold;
   text-align: center;
 }
@@ -82,8 +82,8 @@ input {
 }
 
 .highscores {
-  font-size: 1.3em;
-  line-height: 1.3em;
+  font-size: 1.8em;
+  line-height: 1.8em;
   margin: 0;
 }
 
@@ -91,12 +91,13 @@ input {
   position: absolute;
   right: 0;
   left: 0;
-  bottom: 0;
+  top: 21%;
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .join {
-  font-size: 1.8em;
-  line-height: 1.8em;
+  font-size: 2.3em;
+  line-height: 2.3em;
   margin: 0;
   color: white;
   text-align: center;
@@ -122,12 +123,14 @@ input {
   border-radius: 20px;
 }
 
-.multiplier,
-.max-streak,
-.current-song {
+.multiplier {
   font-size: 28px;
 }
 
+.max-streak,
+.current-song {
+  font-size: 2.8em;
+}
 
 /* For mobile phones: */
 .mobile-mode .countdown-wrapper {
